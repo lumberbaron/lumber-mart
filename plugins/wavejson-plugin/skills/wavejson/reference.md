@@ -243,3 +243,120 @@ Common scenarios for WaveJSON generation:
 8. **Education**: Explain how hardware interface works
 
 Ask Claude: "Show me the WaveJSON for [function/sequence]" or "Generate a timing diagram for [scenario]".
+
+## Detailed Signal Pattern Examples
+
+### SPI/Serial Bus Transfer
+
+```json
+{
+  "signal": [
+    { "name": "CLK",  "wave": "p......." },
+    { "name": "MOSI", "wave": "x2345678x", "data": ["D7", "D6", "D5", "D4", "D3", "D2", "D1", "D0"] },
+    { "name": "MISO", "wave": "x........" },
+    { "name": "CS",   "wave": "10.....1." }
+  ],
+  "config": { "hscale": 2 }
+}
+```
+
+### I2C Transaction
+
+```json
+{
+  "signal": [
+    { "name": "SCL",  "wave": "0.p......." },
+    { "name": "SDA",  "wave": "10.3.4.5.1", "data": ["ADDR", "ACK", "DATA"], "node": ".a.b.c.d.e" },
+    {},
+    { "name": "Event", "wave": "x2.3.4.5.x", "data": ["START", "ADDR", "ACK", "DATA", "STOP"] }
+  ],
+  "edge": [
+    "a~>b Start condition",
+    "c~>d ACK timing"
+  ],
+  "config": { "hscale": 2 }
+}
+```
+
+### Bus Write Cycle with Strobes
+
+```json
+{
+  "signal": [
+    { "name": "ADDR", "wave": "x.2.....x", "data": ["0x100"] },
+    { "name": "DATA", "wave": "x...3...x", "data": ["0xAB"], "node": "....a..." },
+    { "name": "WR",   "wave": "1....01..", "node": ".....bc." },
+    { "name": "CS",   "wave": "1.0.....1" }
+  ],
+  "edge": [
+    "a~>b Data setup time",
+    "c~>a Data hold time"
+  ],
+  "config": { "hscale": 2 }
+}
+```
+
+### Chip Select Decoding (Active Low)
+
+```json
+{
+  "signal": [
+    { "name": "ADDR[1:0]", "wave": "2.3.4.5.", "data": ["00", "01", "10", "11"] },
+    {},
+    ["Chip Selects (Active Low)",
+      { "name": "CS0", "wave": "0.1.1.1." },
+      { "name": "CS1", "wave": "1.0.1.1." },
+      { "name": "CS2", "wave": "1.1.0.1." },
+      { "name": "CS3", "wave": "1.1.1.0." }
+    ]
+  ],
+  "config": { "hscale": 2 }
+}
+```
+
+### Clock Domain Crossing
+
+```json
+{
+  "signal": [
+    ["Clock Domain A",
+      { "name": "CLK_A", "wave": "p........" },
+      { "name": "DATA_A", "wave": "x2.....x.", "data": ["DATA"], "node": ".a......" }
+    ],
+    {},
+    ["Synchronizer",
+      { "name": "SYNC1", "wave": "x..2...x.", "node": "...b...." },
+      { "name": "SYNC2", "wave": "x....2.x.", "node": ".....c.." }
+    ],
+    {},
+    ["Clock Domain B",
+      { "name": "CLK_B", "wave": "P........" },
+      { "name": "DATA_B", "wave": "x......2x", "data": ["DATA"], "node": "......d." }
+    ]
+  ],
+  "edge": [
+    "a~>b Meta-stability",
+    "c~>d Synchronized"
+  ],
+  "config": { "hscale": 2 }
+}
+```
+
+### Setup and Hold Timing
+
+```json
+{
+  "signal": [
+    { "name": "CLK",  "wave": "0...1.0...", "node": "....a.b..." },
+    { "name": "DATA", "wave": "x.2...3..x", "data": ["Old", "New"], "node": "..c.....d." },
+    {},
+    { "name": "Setup",  "wave": "x.2.x.....", "data": ["t_su"], "node": "..e......." },
+    { "name": "Hold",   "wave": "x......2.x", "data": ["t_h"], "node": ".......f.." }
+  ],
+  "edge": [
+    "c~>a Setup time (data before clock)",
+    "b~>d Hold time (data after clock)"
+  ],
+  "config": { "hscale": 3 }
+}
+```

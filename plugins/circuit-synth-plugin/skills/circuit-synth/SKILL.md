@@ -1,7 +1,6 @@
 ---
 name: circuit-synth
 description: Create and design PCB circuits using Python and KiCad with AI assistance. Generate circuits from natural language descriptions, existing documentation, or templates. Search components, manage BOMs, and produce manufacturing-ready outputs.
-allowed-tools: Read, Write, Bash, Glob, Grep
 ---
 
 # Circuit-Synth: AI-Assisted PCB Design

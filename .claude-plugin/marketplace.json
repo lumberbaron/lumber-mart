@@ -12,16 +12,12 @@
     {
       "name": "wavejson-plugin",
       "source": "./plugins/wavejson-plugin",
-      "description": "Generate WaveJSON timing diagrams for digital signals and create HTML viewers to display them using WaveDrom",
-      "version": "1.0.0",
       "category": "hardware",
       "keywords": ["wavejson", "wavedrom", "timing", "diagrams", "digital-signals", "hardware"]
     },
     {
       "name": "circuit-synth-plugin",
       "source": "./plugins/circuit-synth-plugin",
-      "description": "Create and design PCB circuits using Python and KiCad with AI assistance. Generate circuits from natural language descriptions, existing documentation, or templates. Search components, manage BOMs, and produce manufacturing-ready outputs.",
-      "version": "1.0.0",
       "category": "hardware",
       "keywords": ["pcb", "circuit", "kicad", "schematic", "hardware", "electronics", "bom", "gerber", "manufacturing"]
     }
