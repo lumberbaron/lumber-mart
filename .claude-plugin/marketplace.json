@@ -20,6 +20,12 @@
       "source": "./plugins/circuit-synth-plugin",
       "category": "hardware",
       "keywords": ["pcb", "circuit", "kicad", "schematic", "hardware", "electronics", "bom", "gerber", "manufacturing"]
+    },
+    {
+      "name": "datasheet-plugin",
+      "source": "./plugins/datasheet-plugin",
+      "category": "hardware",
+      "keywords": ["datasheet", "ic", "component", "pdf", "documentation", "hardware", "electronics", "specifications"]
     }
   ]
 }
