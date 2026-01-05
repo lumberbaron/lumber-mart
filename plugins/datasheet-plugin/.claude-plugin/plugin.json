@@ -1,7 +1,7 @@
 {
   "name": "datasheet-plugin",
-  "description": "Extract structured information from IC and component datasheets (PDF or URLs) and generate consistent, comprehensive markdown summaries. Perfect for hardware design, documenting components, and creating AI-consumable reference materials.",
-  "version": "2.1.0",
+  "description": "Extract focused, goal-oriented information from IC and component datasheets (PDF or URLs) optimized for circuit design and microcontroller code development. Generates concise markdown summaries with pinouts, power requirements, and software interface details.",
+  "version": "3.0.0",
   "author": {
     "name": "lumberbarons"
   }

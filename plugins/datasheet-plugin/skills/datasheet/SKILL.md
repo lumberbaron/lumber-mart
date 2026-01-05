@@ -5,21 +5,18 @@ description: Extract structured information from integrated circuit and componen
 
 # Datasheet
 
-Extract comprehensive, structured information from IC and component datasheets using a specialized autonomous agent.
+Extract focused, goal-oriented information from IC and component datasheets using a specialized autonomous agent.
 
 ## Overview
 
 This skill delegates datasheet extraction to a specialized autonomous agent (`datasheet-agent`) that:
 - Processes PDFs (local files) or URLs
-- Extracts 6 structured sections:
-  1. General Information (family, name, manufacturer, variants, features)
-  2. Pinout (detailed pin tables with 100% accuracy requirement)
-  3. Usage Information (operating sequences, timing, functional modes)
-  4. Electrical Characteristics (absolute max ratings, recommended conditions, DC/AC specs)
-  5. Package Information (types, dimensions, thermal characteristics)
-  6. Application Examples (reference circuits, cascading, layout recommendations)
-- Generates markdown files in `datasheets/` directory
-- Ensures 100% accuracy for critical information (pinouts, electrical specs)
+- Extracts 2 goal-oriented sections:
+  1. **Circuit Design Information**: Pinout, power requirements, logic levels, package (everything needed to wire the component)
+  2. **Microcontroller Code Information**: Communication interface, initialization sequence, key registers, operating modes (everything needed to write firmware)
+- Generates focused markdown files (~90-120 lines) in `datasheets/` directory
+- Ensures 100% accuracy for critical information (pinouts, communication parameters, register addresses)
+- Omits detailed electrical tables, timing diagrams, and application circuits available in original datasheet
 
 **Context Efficiency**: The agent processes the datasheet in an isolated context. PDF content is loaded into the agent's context and discarded when the agent completes, keeping the main conversation clean and minimizing token usage.
 
@@ -43,9 +40,9 @@ When a user requests datasheet extraction:
    Example delegation:
    ```
    "I'm delegating this datasheet extraction to the datasheet-agent.
-   Please process [URL/path], extract all 6 sections with 100% accuracy
-   (especially pinouts and electrical specs), and save the markdown output
-   to the datasheets/ directory."
+   Please process [URL/path], extract goal-oriented information focused on
+   circuit design and microcontroller code development, and save the focused
+   markdown output to the datasheets/ directory."
    ```
 
 4. **Present results**: When the agent completes, show the user:
@@ -59,9 +56,9 @@ When a user requests datasheet extraction:
 The `datasheet-agent` autonomously handles:
 - **Step 1**: Receive and validate input (PDF path or URL)
 - **Step 2**: Read datasheet using Read tool (PDF) or WebFetch (URL)
-- **Step 3**: Extract 6 structured sections with 100% accuracy
-- **Step 4**: Generate markdown file with proper formatting and naming
-- **Step 5**: Verify completeness and accuracy
+- **Step 3**: Extract 2 goal-oriented sections focused on circuit design and code development
+- **Step 4**: Generate focused markdown file (~90-120 lines) with proper formatting
+- **Step 5**: Verify completeness, accuracy, and focused scope
 - **Step 6**: Return summary with file location and key component info
 
 For full workflow details, see `.claude/agents/datasheet-agent.md`
