@@ -1,0 +1,8 @@
+{
+  "name": "doc-sync-plugin",
+  "description": "Synchronizes CLAUDE.md navigation hierarchy and README.md invisible knowledge docs across a repository. Performs documentation audits, content migration, and index updates.",
+  "version": "1.0.0",
+  "author": {
+    "name": "solatis"
+  }
+}

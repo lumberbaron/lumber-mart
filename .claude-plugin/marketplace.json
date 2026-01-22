@@ -26,6 +26,12 @@
       "source": "./plugins/datasheet-plugin",
       "category": "hardware",
       "keywords": ["datasheet", "ic", "component", "pdf", "documentation", "hardware", "electronics", "specifications"]
+    },
+    {
+      "name": "doc-sync-plugin",
+      "source": "./plugins/doc-sync-plugin",
+      "category": "documentation",
+      "keywords": ["documentation", "claude-md", "readme", "sync", "audit", "index", "navigation"]
     }
   ]
 }
