@@ -9,7 +9,6 @@ Use this template when creating `specs/<feature-name>/overview.md` for multi-com
 
 ## Quick Reference
 
-- **Files**: `path/to/main.py`, `configs/agent.yaml`, `src/api/routes.py`
 - **Key Decision**: [One-sentence architectural choice, e.g., "Using event-driven architecture for loose coupling"]
 - **Status**: Design Phase | In Progress | Complete
 - **Dependencies**: [Libraries, APIs, services required]
@@ -90,12 +89,10 @@ Example structure:
 
 ### 1. [Component Name](component-file.md)
 **Purpose**: [One-line description]
-**Technology**: [Primary tech used]
 **Key Responsibilities**: [What this component does]
 
 ### 2. [Component Name](component-file.md)
 **Purpose**: [One-line description]
-**Technology**: [Primary tech used]
 **Key Responsibilities**: [What this component does]
 
 [Repeat for each major component]
@@ -113,36 +110,6 @@ Example structure:
 3. **[Step 3 Name]**: [What happens, where, and why]
 
 [Continue for 5-8 steps covering the complete user journey]
-
-**Performance Target**: [Specific timing, e.g., "<6 seconds end-to-end"]
-
----
-
-## Technology Stack
-
-### Backend
-- **Framework**: [Framework name and version]
-- **Language**: [Language and version]
-- **LLM**: [Model name and variant]
-- **Database**: [Database type and version]
-- **Vector Store**: [If applicable]
-- **Embeddings**: [If applicable]
-
-### Frontend [Skip if backend-only]
-- **Framework**: [Framework name and version]
-- **Build Tool**: [Build tool]
-- **Styling**: [CSS framework]
-- **State Management**: [If applicable]
-
-### Infrastructure
-- **Hosting**: [Platform or service]
-- **CDN**: [If applicable]
-- **Storage**: [File storage solution]
-- **Monitoring**: [If applicable]
-
-### External Services
-- **[Service Name]**: [Purpose, API type, authentication]
-- **[Service Name]**: [Purpose, API type, authentication]
 
 ---
 
@@ -184,34 +151,6 @@ Example structure:
 
 ---
 
-## Performance Targets ⚠️ TBD
-
-- **[Metric 1]**: [Target value] (e.g., "Photo to recommendation: <6 seconds")
-- **[Metric 2]**: [Target value] (e.g., "Vision accuracy: >90%")
-- **[Metric 3]**: [Target value] (e.g., "Match correlation: >0.8")
-
-**Breakdown** (if complex workflow):
-- [Component 1]: [Time budget] (e.g., "Image upload: <1s")
-- [Component 2]: [Time budget] (e.g., "Vision API: <2s")
-- [Component 3]: [Time budget] (e.g., "Matching: <3s")
-
----
-
-## Cost Analysis [Skip for MVPs]
-
-### Per-Request Costs
-- **[Service 1]**: ~$[amount] per [unit] (e.g., "$0.006 per image")
-- **[Service 2]**: ~$[amount] per [unit]
-- **Total**: ~$[amount] per [operation]
-
-### Monthly Costs (at [X] users)
-- **[Service 1]**: ~$[amount]/month
-- **[Service 2]**: ~$[amount]/month
-- **Infrastructure**: ~$[amount]/month
-- **Total**: ~$[amount]/month
-
----
-
 ## Security & Privacy
 
 **Data Protection**:
@@ -222,47 +161,6 @@ Example structure:
 **Authentication**: [How users are authenticated, if applicable]
 
 **Rate Limiting**: [If applicable]
-
----
-
-## Testing Strategy 🔄 Placeholder
-
-### Unit Tests
-- [Component 1]: [What to test] (e.g., "Vision service with fixture images")
-- [Component 2]: [What to test] (e.g., "Matching algorithm with known profiles")
-
-### Integration Tests
-- [Integration point 1]: [What to test] (e.g., "End-to-end photo → recommendation flow")
-- [Integration point 2]: [What to test]
-
-### User Acceptance Testing
-- [Scenario 1]: [What to verify] (e.g., "Real product photos with >90% accuracy")
-- [Scenario 2]: [What to verify]
-
-### Load Testing [Skip for MVPs]
-- **Target**: [Load specification] (e.g., "100 concurrent users, <6s response time")
-
----
-
-## Deployment Plan
-
-### Phase 1: [Phase Name] ([Duration])
-- [Task 1]
-- [Task 2]
-- [Task 3]
-**Deliverable**: [What's completed]
-
-### Phase 2: [Phase Name] ([Duration])
-- [Task 1]
-- [Task 2]
-**Deliverable**: [What's completed]
-
-### Phase 3: [Phase Name] ([Duration])
-- [Task 1]
-- [Task 2]
-**Deliverable**: [What's completed]
-
-**Total Timeline**: [Total duration]
 
 ---
 
@@ -291,9 +189,7 @@ Mark section headers with decision status:
 - **Data Flow**: Describe operations in prose; save code for implementation
 - **Design Decisions**: Document rationale and trade-offs, not just the choice
 - **Architecture Conformance**: Check all applicable items before implementation
-- **Performance Targets**: Be specific and measurable with numeric targets
-- **Cost Analysis**: Estimate based on API pricing and expected usage (skip for MVPs)
-- **Timeline**: Break into phases if >1 week, show dependencies
+- **Security & Privacy**: Document requirements, not implementation details
 
 ## When to Use This Template
 

@@ -9,7 +9,6 @@ Use this template when creating `specs/<feature-name>/overview.md` for initial p
 
 ## Quick Reference
 
-- **Files**: `path/to/main.py`, `configs/agent.yaml`
 - **Key Decision**: [One-sentence architectural choice]
 - **Status**: Design Phase | In Progress | Complete
 - **Dependencies**: [Libraries, APIs, services required]

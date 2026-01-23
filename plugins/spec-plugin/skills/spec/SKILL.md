@@ -7,7 +7,9 @@ description: Generate and maintain feature specifications for non-trivial featur
 
 ## Overview
 
-Generate consistent, comprehensive feature specifications in the `specs/` directory. Specifications document architecture, design decisions, and implementation details for non-trivial features before and during development.
+Generate consistent, comprehensive feature specifications. Specifications document architecture, design decisions, and implementation details for non-trivial features before and during development.
+
+Unless instructed otherwise, specs are always stored in the specs/ directory.
 
 ## When to Use This Skill
 
@@ -21,7 +23,6 @@ Generate consistent, comprehensive feature specifications in the `specs/` direct
 **Update specs when:**
 - Implementation changes affect documented architecture
 - New components are added to spec'd features
-- Performance characteristics change significantly
 - API contracts are modified
 
 ---
@@ -53,11 +54,11 @@ Is this a multi-component feature (3+ components)?
 
 ### Template Summary
 
-| Template | Lines | Purpose | When to Use |
-|----------|-------|---------|-------------|
-| `story_template.md` | ~100 | Lightweight feature story | Initial proposals, small features (1-2 components) |
-| `architecture_template.md` | ~250 | System design | Multi-component features, new services, architectural changes |
-| `component_template.md` | ~180 | Single component deep-dive | Individual agents, services, APIs, UIs |
+| Template | Purpose | When to Use |
+|----------|---------|-------------|
+| `story_template.md` | Lightweight feature story | Initial proposals, small features (1-2 components) |
+| `architecture_template.md` | System design | Multi-component features, new services, architectural changes |
+| `component_template.md` | Single component spec | Individual agents, services, APIs, UIs |
 
 ---
 
@@ -88,11 +89,10 @@ Is this a multi-component feature (3+ components)?
 - Data Flow
 - Design Decisions
 - Architecture Conformance (checklist)
+- Security & Privacy
 
-**Conditional Sections:**
-- Technology Stack (skip if using existing stack)
-- Cost Analysis (skip for MVPs)
-- Load Testing (skip for MVPs)
+**Optional Sections:**
+- Open Questions
 
 ### Component Spec (component_template.md)
 
@@ -100,16 +100,10 @@ Is this a multi-component feature (3+ components)?
 - Quick Reference
 - Purpose
 - Design Overview
-- Core API/Interface
+- Interface (prose-based, not signatures)
+- Behavior (what happens, not how)
 - Error Handling
 - Architecture Conformance (applicable items only)
-
-**Conditional Sections:**
-- Shared Config Integration (skip if standalone)
-- Helper Functions (skip if none needed)
-- Optimization Strategies (skip for MVPs)
-- Cost (skip if not API-based)
-- Deployment (skip for MVPs)
 
 ---
 
@@ -123,14 +117,14 @@ Mark section headers with decision status to communicate readiness:
 
 Example usage:
 ```markdown
-## Core API ✅ Decided
-[API is finalized, implement as documented]
+## Interface ✅ Decided
+[Interface is finalized, implement as documented]
 
-## Performance Targets ⚠️ TBD
-[Needs benchmarking before finalizing]
+## Behavior ⚠️ TBD
+[Needs clarification before implementation]
 
-## Testing 🔄 Placeholder
-[Test cases to be defined during implementation]
+## Error Handling 🔄 Placeholder
+[Error scenarios to be defined during implementation]
 ```
 
 ---
@@ -208,23 +202,19 @@ For each major component (service, agent, API, UI):
 1. Read `references/component_template.md` for structure
 2. Create `specs/<feature-name>/<component-name>.md`
 3. Fill in sections:
-   - **Quick Reference**: Files, Key Decision, Status, Dependencies
+   - **Quick Reference**: Key Decision, Status, Dependencies
    - **Purpose**: 1-2 paragraphs explaining what and why
-   - **Design Overview**: Component type, file paths, architecture pattern
-   - **Architecture**: Dependencies, environment config, integration setup
-   - **Core API/Interface**: Input/output structure with types
-   - **Implementation/Workflow**: Step-by-step process (numbered steps)
-   - **Error Handling**: Specific scenarios with recovery strategies
+   - **Design Overview**: Component type, architecture pattern
+   - **Interface**: Inputs/outputs in prose (defer exact signatures to implementation)
+   - **Behavior**: What happens from user/system perspective (numbered steps)
+   - **Error Handling**: Failure modes and recovery expectations
    - **Architecture Conformance**: Check applicable items
-   - **Performance**: Targets, optimization strategies, cost (conditional)
-   - **Testing**: Unit and integration test approaches (placeholder)
-   - **Deployment**: Configuration, monitoring (conditional)
 
 4. Component-specific guidance:
-   - **Services**: Include module path, singleton pattern if applicable
-   - **Agents**: Include SAM config path, tools module, workflow steps
-   - **APIs**: Include endpoints, request/response schemas, authentication
-   - **UIs**: Include component structure, props/state, hooks, styling
+   - **Services**: Describe responsibilities and key operations
+   - **Agents**: Describe capabilities, tools, and when invoked
+   - **APIs**: Describe endpoints, expected payloads, and response shapes
+   - **UIs**: Describe user interactions and state requirements
 
 ### Step 6: Link Components
 
@@ -240,21 +230,21 @@ Use relative markdown links throughout. Full user story details live in overview
 Replace template placeholders with actual values:
 
 **From codebase exploration:**
-- Real file paths and module names
-- Actual dependency versions
-- Current configuration patterns
-- Existing environment variables
+- Existing patterns and conventions to follow
+- Integration points with other systems
+- Constraints from current architecture
 
 **From requirements:**
-- Specific performance targets (e.g., "<6s end-to-end", ">90% accuracy")
-- Cost estimates based on API pricing
-- Timeline with phases matching project plan
+- Security and privacy requirements
+- Success criteria that can be measured
 
-**Keep specs focused on requirements:**
+**Keep specs focused on requirements, not implementation:**
 - Document WHAT to build and WHY (design decisions with rationale)
-- Defer HOW to implementation time (exact code, API shapes, test fixtures)
-- Use prose descriptions, not code blocks, for workflows
+- Defer HOW to implementation time (exact code, file paths, API signatures, test fixtures)
+- Use prose descriptions for interfaces and workflows, not code blocks or signatures
 - Specify measurable success criteria
+- Describe behaviors from user/system perspective, not internal implementation details
+- Omit exact versions, file paths, and configuration details—these are implementation decisions
 
 ---
 
@@ -278,24 +268,16 @@ Replace template placeholders with actual values:
 - System Architecture diagram
 - Data Flow steps
 - Component Specifications list
-- Technology Stack
 - Architecture Conformance checklist
 
 **New features** → Update:
 - Key Features list
 - Success Criteria
-- Implementation/Workflow steps
-- Testing sections
-
-**Performance changes** → Update:
-- Performance Targets
-- Cost Analysis
-- Optimization Strategies
+- Behavior steps
 
 **API changes** → Update:
-- Core API/Interface section
-- Request/Response schemas
-- Integration examples
+- Interface section
+- Behavior section
 
 ### Step 3: Preserve Structure
 
@@ -310,8 +292,7 @@ While updating:
 
 After updates:
 - Ensure all links still work
-- Check that timeline and status reflect current reality
-- Verify code examples match actual implementation
+- Check that status reflects current reality
 - Confirm success criteria are still achievable/relevant
 
 ---
@@ -321,7 +302,10 @@ After updates:
 ### Spec Quality
 
 - **Be specific**: Use concrete numbers, not vague terms (">90% accuracy" not "high accuracy")
-- **Requirements over implementation**: Describe behaviors and constraints; defer code to implementation
+- **Requirements over implementation**: Describe WHAT and WHY; defer HOW to implementation
+  - Use prose, not code blocks or function signatures
+  - Omit file paths, exact versions, and configuration details
+  - Focus on observable behaviors, not internal mechanics
 - **Document decisions**: Explain why, not just what was chosen
 - **Stay current**: Update specs when implementation diverges
 - **Link generously**: Connect related specs and components
@@ -346,10 +330,9 @@ After updates:
 
 **Applied to templates**:
 - Load only the template needed for current task
-- User story index template is smallest (~0.5k tokens)
-- Story template is lightweight (~1k tokens)
-- Component template is medium (~1.5k tokens)
-- Architecture template is largest (~2k tokens)
+- Story template is lightest (initial proposals)
+- Component template is focused (single component requirements)
+- Architecture template is most comprehensive (system design)
 
 ### Portability
 

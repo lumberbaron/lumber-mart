@@ -1,7 +1,7 @@
 {
   "name": "spec-plugin",
   "description": "Generate and maintain feature specifications with progressive disclosure. Creates lightweight story specs, detailed architecture specs, and component deep-dives with conformance checklists.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "solatis"
   }
