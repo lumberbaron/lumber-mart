@@ -28,16 +28,10 @@
       "keywords": ["datasheet", "ic", "component", "pdf", "documentation", "hardware", "electronics", "specifications"]
     },
     {
-      "name": "doc-sync-plugin",
-      "source": "./plugins/doc-sync-plugin",
-      "category": "documentation",
-      "keywords": ["documentation", "claude-md", "readme", "sync", "audit", "index", "navigation"]
-    },
-    {
-      "name": "spec-plugin",
-      "source": "./plugins/spec-plugin",
-      "category": "documentation",
-      "keywords": ["spec", "specification", "architecture", "story", "component", "documentation", "planning"]
+      "name": "claude-config-plugin",
+      "source": "./plugins/claude-config-plugin",
+      "category": "development",
+      "keywords": ["development", "quality", "documentation"]
     }
   ]
 }
