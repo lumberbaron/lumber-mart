@@ -10,28 +10,10 @@
   },
   "plugins": [
     {
-      "name": "wavejson-plugin",
-      "source": "./plugins/wavejson-plugin",
+      "name": "circuits-plugin",
+      "source": "./plugins/circuits-plugin",
       "category": "hardware",
-      "keywords": ["wavejson", "wavedrom", "timing", "diagrams", "digital-signals", "hardware"]
-    },
-    {
-      "name": "circuit-synth-plugin",
-      "source": "./plugins/circuit-synth-plugin",
-      "category": "hardware",
-      "keywords": ["pcb", "circuit", "kicad", "schematic", "hardware", "electronics", "bom", "gerber", "manufacturing"]
-    },
-    {
-      "name": "datasheet-plugin",
-      "source": "./plugins/datasheet-plugin",
-      "category": "hardware",
-      "keywords": ["datasheet", "ic", "component", "pdf", "documentation", "hardware", "electronics", "specifications"]
-    },
-    {
-      "name": "claude-config-plugin",
-      "source": "./plugins/claude-config-plugin",
-      "category": "development",
-      "keywords": ["development", "quality", "documentation"]
+      "keywords": ["hardware", "electronics", "datasheets", "wavejson", "circuit-synth"]
     }
   ]
 }

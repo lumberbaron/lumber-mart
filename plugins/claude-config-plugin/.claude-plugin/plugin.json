@@ -1,8 +1,0 @@
-{
-  "name": "claude-config-plugin",
-  "description": "Provides the opinionated set of agents, skills, and output styles from the solatis/claude-config github repository.",
-  "version": "1.0.0",
-  "author": {
-    "name": "solatis"
-  }
-}

@@ -6,7 +6,9 @@ Learn more about Claude Code marketplaces in the [official documentation](https:
 
 ## Available Plugins
 
-### wavejson-plugin
+### circuits-plugin
+
+### wavejson skill
 
 Generate WaveJSON timing diagrams for digital signals and create HTML viewers to display them using WaveDrom. Perfect for hardware development, protocol analysis, and documenting signal timing in embedded systems projects.
 
@@ -17,7 +19,7 @@ Generate WaveJSON timing diagrams for digital signals and create HTML viewers to
 - Built-in templates for common patterns (SPI, I2C, setup/hold timing, etc.)
 - Quick reference documentation included
 
-### circuit-synth-plugin
+### circuit-synth skill
 
 Create and design PCB circuits using Python and KiCad with AI assistance. Generate circuits from natural language descriptions, existing documentation, or templates. Search components, manage BOMs, and produce manufacturing-ready outputs.
 
@@ -32,7 +34,7 @@ Create and design PCB circuits using Python and KiCad with AI assistance. Genera
 - Hierarchical design with modular subcircuits
 - Version control friendly (text-based definitions)
 
-### datasheet-extractor-plugin
+### datasheet skill
 
 Extract structured information from integrated circuit and component datasheets (PDF files or URLs) and generate comprehensive markdown summaries. Perfect for documenting components, creating reference materials for hardware projects, and building AI-consumable component libraries.
 
@@ -66,9 +68,7 @@ Extract structured information from integrated circuit and component datasheets 
 /plugin list
 
 # Install a plugin
-/plugin install wavejson-plugin@lumber-mart
-/plugin install circuit-synth-plugin@lumber-mart
-/plugin install datasheet-extractor-plugin@lumber-mart
+/plugin install circuits-plugin@lumber-mart
 ```
 
 ## License
