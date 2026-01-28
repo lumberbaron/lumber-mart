@@ -1,18 +1,24 @@
 ---
-name: review-code
-description: Review code for quality issues including code smells, concurrency problems, error handling, resource management, security vulnerabilities, and maintainability. Use when asked to review code, audit for bugs, check code quality, or find potential issues. Creates bug beads for critical/major issues found.
-allowed_tools:
-  - Bash(bd create *)
+description: Review code for quality issues including code smells, concurrency problems, error handling, resource management, security vulnerabilities, and maintainability. Creates bug beads for critical/major issues found.
 ---
 
 # Code Review
 
 Review code in the specified path for quality issues.
 
-## Arguments
+## User Input
 
-- `[path]` - Required path to review (file or directory)
-- `--dry-run` - List issues without creating beads
+```text
+$ARGUMENTS
+```
+
+You **MUST** consider the user input before proceeding (if not empty).
+
+## Argument Parsing
+
+Parse `$ARGUMENTS` for:
+- **Path**: Required path to review (file or directory)
+- **`--dry-run`**: List issues without creating beads
 
 ## Workflow
 

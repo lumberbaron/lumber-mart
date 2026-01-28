@@ -1,18 +1,24 @@
 ---
-name: review-tests
-description: Review tests (unit, integration, e2e) for completeness, usefulness, output validation, isolation, and readability. Use when asked to review tests, audit test coverage, check test quality, or evaluate test effectiveness. Creates bug beads for issues found.
-allowed_tools:
-  - Bash(bd create *)
+description: Review tests (unit, integration, e2e) for completeness, usefulness, output validation, isolation, and readability. Creates bug beads for issues found.
 ---
 
 # Tests Review
 
 Review tests in the specified path for quality issues.
 
-## Arguments
+## User Input
 
-- `[path]` - Required path to review (file or directory containing tests)
-- `--dry-run` - List issues without creating beads
+```text
+$ARGUMENTS
+```
+
+You **MUST** consider the user input before proceeding (if not empty).
+
+## Argument Parsing
+
+Parse `$ARGUMENTS` for:
+- **Path**: Required path to review (file or directory containing tests)
+- **`--dry-run`**: List issues without creating beads
 
 ## Workflow
 

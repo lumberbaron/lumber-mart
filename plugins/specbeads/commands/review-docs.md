@@ -1,18 +1,24 @@
 ---
-name: review-docs
-description: Review repository documentation for quality, completeness, and consistency. Use when asked to review docs, check README files, audit documentation, or ensure docs follow progressive disclosure. Creates bug beads for errors/inconsistencies and task beads for missing content.
-allowed_tools:
-  - Bash(bd create *)
+description: Review repository documentation for quality, completeness, and consistency. Creates bug beads for errors/inconsistencies and task beads for missing content.
 ---
 
 # Documentation Review
 
 Review documentation in the specified path (default: entire repository).
 
-## Arguments
+## User Input
 
-- `[path]` - Optional path to review (default: repo root, reviews all docs)
-- `--dry-run` - List issues without creating beads
+```text
+$ARGUMENTS
+```
+
+You **MUST** consider the user input before proceeding (if not empty).
+
+## Argument Parsing
+
+Parse `$ARGUMENTS` for:
+- **Path**: Optional path to review (default: repo root, reviews all docs)
+- **`--dry-run`**: List issues without creating beads
 
 ## Workflow
 
