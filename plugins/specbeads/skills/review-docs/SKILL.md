@@ -1,5 +1,5 @@
 ---
-name: specbeads.review-docs
+name: review-docs
 description: Review repository documentation for quality, completeness, and consistency. Use when asked to review docs, check README files, audit documentation, or ensure docs follow progressive disclosure. Creates bug beads for errors/inconsistencies and task beads for missing content.
 allowed_tools:
   - Bash(bd create *)

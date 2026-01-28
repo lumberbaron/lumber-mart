@@ -1,5 +1,5 @@
 ---
-name: specbeads.review-code
+name: review-code
 description: Review code for quality issues including code smells, concurrency problems, error handling, resource management, security vulnerabilities, and maintainability. Use when asked to review code, audit for bugs, check code quality, or find potential issues. Creates bug beads for critical/major issues found.
 allowed_tools:
   - Bash(bd create *)
