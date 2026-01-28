@@ -1,0 +1,8 @@
+{
+  "name": "spec-beads-plugin",
+  "description": "Skills to make the use of spec-kit and beads streamlined.",
+  "version": "1.0.0",
+  "author": {
+    "name": "lumberbarons"
+  }
+}
