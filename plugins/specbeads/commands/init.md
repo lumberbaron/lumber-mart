@@ -57,10 +57,12 @@ specify init . --ai claude --script ps --force
 
 ```bash
 bd init --quiet
-bd setup claude
 ```
 
-Both commands are idempotent.
+Next, check if `CLAUDE.md` exists in the repository root:
+
+- **If `CLAUDE.md` does NOT exist**: run `bd setup claude --output CLAUDE.md`
+- **If `CLAUDE.md` exists**: STOP and ask the user what they want to do (e.g., overwrite, pick a different filename, or skip). Do NOT proceed until the user responds.
 
 ### 4. Report and Prompt for Commit
 
@@ -72,7 +74,7 @@ Repository initialized with spec-kit and beads.
 Files created/modified:
 - .specify/ (spec-kit configuration)
 - .beads/ (beads configuration)
-- AGENTS.md (beads workflow instructions)
+- CLAUDE.md (beads workflow instructions)
 ```
 
 Unless `--no-commit` was specified, ask the user if they want to commit these changes. If yes:
