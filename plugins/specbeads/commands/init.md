@@ -62,26 +62,7 @@ bd setup claude
 
 Both commands are idempotent.
 
-### 4. Merge AGENTS.md into CLAUDE.md
-
-The `bd setup claude` command creates an `AGENTS.md` file with beads workflow instructions.
-
-If `AGENTS.md` exists:
-1. Check if CLAUDE.md already contains beads content (grep for "bd ready")
-2. If not found, append AGENTS.md content to CLAUDE.md
-3. Delete AGENTS.md
-
-```bash
-# Example approach
-if [ -f AGENTS.md ]; then
-  if ! grep -q "bd ready" CLAUDE.md 2>/dev/null; then
-    cat AGENTS.md >> CLAUDE.md
-  fi
-  rm AGENTS.md
-fi
-```
-
-### 5. Report and Prompt for Commit
+### 4. Report and Prompt for Commit
 
 Report what was set up:
 
@@ -91,7 +72,7 @@ Repository initialized with spec-kit and beads.
 Files created/modified:
 - .specify/ (spec-kit configuration)
 - .beads/ (beads configuration)
-- CLAUDE.md (updated with beads workflow)
+- AGENTS.md (beads workflow instructions)
 ```
 
 Unless `--no-commit` was specified, ask the user if they want to commit these changes. If yes:
