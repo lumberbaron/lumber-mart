@@ -4,20 +4,20 @@
     "name": "lumberbarons"
   },
   "metadata": {
-    "description": "A basic Claude Code plugin marketplace",
+    "description": "A Claude Code plugin marketplace",
     "version": "1.0.0",
     "license": "MIT"
   },
   "plugins": [
     {
-      "name": "circuits-plugin",
-      "source": "./plugins/circuits-plugin",
+      "name": "circuits",
+      "source": "./plugins/circuits",
       "category": "hardware",
       "keywords": ["hardware", "electronics", "datasheets", "wavejson", "circuit-synth"]
     },
     {
-      "name": "spec-beads-plugin",
-      "source": "./plugins/spec-beads-plugin",
+      "name": "specbeads",
+      "source": "./plugins/specbeads",
       "category": "workflow",
       "keywords": ["spec-kit", "beads", "specifications", "task-tracking", "code-review"]
     }

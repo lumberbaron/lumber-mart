@@ -1,4 +1,4 @@
-# spec-beads-plugin
+# specbeads
 
 A Claude Code plugin that integrates [spec-kit](https://github.com/spec-kit/specify) with [beads](https://github.com/beads-project/beads) for streamlined specification-driven development.
 
