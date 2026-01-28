@@ -12,7 +12,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Argument Parsing
 
 Parse `$ARGUMENTS` for:
-- **Spec folder name**: If provided (e.g., `001-wine-db-api`), use that spec instead of deriving from branch
+- **Spec folder name**: If provided (e.g., `001-user-auth`), use that spec instead of deriving from branch
 - **`--dry-run`**: Preview what would be created without actually creating beads
 - **`--skip-completed`**: Skip creation of beads for tasks already marked `[x]` in tasks.md
 - **`--force`**: Create beads even if duplicates are detected (skip duplicate check)
@@ -65,7 +65,7 @@ Extract the following structure:
 
 Example task line:
 ```
-- [x] T026 [US1] Implement product search with multi-criteria filtering in api/internal/repository/product.go
+- [x] T026 [US1] Implement user authentication with JWT tokens in internal/auth/handler.go
 ```
 
 ### 4. Check for Existing Beads (Skip if `--force`)
@@ -104,10 +104,10 @@ bd create --type epic \
 ```
 
 **Priority mapping**:
-- Phase 1-2 (Setup/Foundational): P1
+- Setup/Foundational phases: P1
 - User Story phases: Match user story priority from spec.md
-- Scrapers/Infrastructure: P2
-- Polish: P3
+- Infrastructure/Integration phases: P2
+- Polish/Cleanup phases: P3
 
 Store the created epic ID for use as parent when creating task beads.
 
@@ -130,7 +130,7 @@ bd create --type task \
 <Full task description from tasks.md>
 
 **Source**: specs/<feature>/tasks.md Phase N
-**File path**: <extracted path from description, e.g., api/internal/db/connect.go>
+**File path**: <extracted path from description, e.g., internal/db/connect.go>
 **Implements**: <US# reference if present, linked to spec.md>
 **Parallelizable**: <Yes if [P] marker present, No otherwise>
 
@@ -139,22 +139,26 @@ bd create --type task \
 
 **Constitution Principle Mapping** (auto-detect based on task keywords):
 
-| Task Pattern | Principle |
-|--------------|-----------|
-| scraper, scraping, rate limit, jitter | VI. Respectful Scraping |
-| GraphQL, resolver, query, gqlgen | III. GraphQL-First API |
-| terraform, AWS, Lambda, ECS, RDS, infrastructure | V. Infrastructure-as-Code |
-| retailer, SAQ, LCBO, multi-retailer | I. Multi-Retailer Architecture |
-| wine, product type | II. Wine-Only Scope |
-| schedule, freshness, timestamp | IV. Scheduled Scraping |
+If the project has a constitution file (`.specify/memory/constitution.md`), map task keywords to relevant principles. Example mappings:
+
+| Task Pattern | Principle Example |
+|--------------|-------------------|
+| auth, login, session, JWT, OAuth | Security & Authentication |
+| API, endpoint, REST, GraphQL | API Design |
+| terraform, AWS, infrastructure, deploy | Infrastructure-as-Code |
+| test, spec, coverage, mock | Testing Standards |
+| database, migration, schema | Data Management |
+| cache, performance, optimization | Performance |
+
+Adapt mappings based on the actual principles defined in the project's constitution.
 
 **Priority mapping**:
-- Tasks in Phase 2 (Foundational): P1 (blocking)
-- Tasks with [US1] or [US2]: P1
-- Tasks with [US3], [US4], [US6]: P2
-- Tasks with [US5], [US7]: P3
-- Scraper/Infrastructure tasks: P2
-- Polish tasks: P3
+- Tasks in early phases (Setup/Foundational): P1 (blocking)
+- Tasks with high-priority user stories [US1], [US2]: P1
+- Tasks with medium-priority user stories [US3], [US4]: P2
+- Tasks with lower-priority user stories: P3
+- Infrastructure/integration tasks: P2
+- Polish/cleanup tasks: P3
 
 ### 7. Handle Completed Tasks
 
@@ -178,11 +182,11 @@ bd dep add <phase-4-id> <phase-3-id>
 # ... and so on
 ```
 
-Special dependency rules from tasks.md:
-- Phase 2 (Foundational) BLOCKS all user story phases (3-9)
-- Phase 10 (Scrapers) depends only on Phase 2
-- Phase 11 (Infrastructure) depends only on Phase 2
-- Phase 12 (Polish) depends on all user story phases
+Special dependency rules (derive from tasks.md structure):
+- Foundational phases BLOCK all feature/user story phases
+- Infrastructure phases typically depend only on foundational phases
+- Integration phases may depend only on foundational phases
+- Final polish/cleanup phases depend on all feature phases
 
 ### 9. Report Summary
 
@@ -191,21 +195,20 @@ Output a summary of what was created:
 ```
 Created beads from specs/<feature>/tasks.md:
 
-Epics: 12 (Phase 1-12)
+Epics: N (Phase 1-N)
   - Phase 1: Setup → beads-abc
   - Phase 2: Foundational → beads-def
   ...
 
-Tasks: 98 total
-  - Created (open): 23
-  - Created (closed): 75
-  - Skipped (duplicates): 0
+Tasks: M total
+  - Created (open): X
+  - Created (closed): Y
+  - Skipped (duplicates): Z
 
 Dependencies established:
-  - Phase 1 → Phase 2 → Phases 3-9 (user stories)
-  - Phase 2 → Phase 10 (scrapers)
-  - Phase 2 → Phase 11 (infrastructure)
-  - Phases 3-9 → Phase 12 (polish)
+  - Phase 1 → Phase 2 → Feature phases
+  - Foundational → Infrastructure phases
+  - Feature phases → Polish phase
 
 Next steps:
   - Run `bd ready` to see available work

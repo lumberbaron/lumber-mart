@@ -13,7 +13,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Argument Parsing
 
 Parse `$ARGUMENTS` for:
-- **Spec folder name**: If provided (e.g., `001-wine-db-api`), use that spec instead of deriving from branch
+- **Spec folder name**: If provided (e.g., `001-user-auth`), use that spec instead of deriving from branch
 - **`--dry-run`**: Report discrepancies without creating beads or closing any
 - **`--skip-tests`**: Skip running build/tests (faster validation)
 - **`--verbose`**: Show detailed validation output
@@ -57,7 +57,7 @@ Extract the following structure:
 **Tasks**: Lines matching `- [x| ] T### [P?] [US#?] Description`
 - `[x]` = completed, `[ ]` = pending
 - `T###` = task ID (e.g., T001, T042)
-- Extract file paths from descriptions (e.g., `api/internal/repository/product.go`)
+- Extract file paths from descriptions (e.g., `internal/auth/handler.go`)
 
 Store:
 - Task ID → completion status mapping
@@ -88,17 +88,18 @@ Compare task completion status against bead status:
 |-----------|--------|
 | Task `[x]` in tasks.md, bead open | Auto-close the bead (unless `--dry-run`) |
 | Task `[ ]` in tasks.md, bead closed | Create discrepancy bead |
-| Task in tasks.md, no bead | Count for beanify suggestion |
+| Task in tasks.md, no bead | Count for beadify suggestion |
 | Bead exists with T### title, no matching task in tasks.md | Create discrepancy bead (orphan) |
 
 #### 4.2 Deep Implementation Validation (unless `--skip-tests`)
 
-Run quality gates:
+Run quality gates (adapt commands to the project's build system):
 
 ```bash
-make build 2>&1          # Compilation check
-make test-api-unit 2>&1  # Fast unit tests
-make test-scrapers 2>&1  # Scraper tests
+# Examples - use project-specific commands
+make build 2>&1    # or: go build ./..., npm run build, cargo build
+make test 2>&1     # or: go test ./..., npm test, cargo test
+make lint 2>&1     # or: golangci-lint run, npm run lint, cargo clippy
 ```
 
 Track results:
@@ -110,29 +111,31 @@ For any failure when tasks are marked complete (`[x]` in tasks.md OR closed bead
 
 #### 4.3 Architecture Consistency
 
-Compare plan.md architectural decisions against implementation:
+Compare plan.md architectural decisions against implementation. Examples of validation checks:
 
 | Plan Element | Validation Check |
 |--------------|------------------|
-| "Go 1.22+" | Check `api/go.mod` contains `go 1.22` or higher |
-| "gqlgen for GraphQL" | Check `api/gqlgen.yml` exists |
-| "pgx for database" | Grep for `pgx` imports in `api/` |
-| "Playwright for scrapers" | Check `scrapers/package.json` contains playwright |
-| "PostGIS for geo" | Check migrations enable postgis extension |
+| Language/runtime version | Check version in go.mod, package.json, Cargo.toml, etc. |
+| Framework choice | Verify framework config files exist (e.g., next.config.js, vite.config.ts) |
+| Database driver | Grep for expected imports/dependencies |
+| External services | Check for client library imports or config files |
+| Directory structure | Verify expected directories exist |
 
-For each mismatch, create discrepancy bead.
+Adapt checks based on what's specified in plan.md. For each mismatch, create discrepancy bead.
 
 #### 4.4 Constitution Alignment
 
-For each constitution principle, perform spot-checks:
+If the project has a constitution (`.specify/memory/constitution.md`), perform spot-checks for each principle. Examples:
 
-| Principle | Check |
-|-----------|-------|
-| III. GraphQL-First API | Verify no REST endpoints (e.g., `http.HandleFunc` patterns) in api/ except health checks |
-| V. Infrastructure-as-Code | Verify `infra/` directory exists and contains `.tf` files |
-| VI. Respectful Scraping | Verify rate limiter exists in scrapers/ (search for `delay`, `sleep`, `rate`) |
+| Principle Type | Example Check |
+|----------------|---------------|
+| API design standards | Verify endpoint patterns match declared style (REST, GraphQL, gRPC) |
+| Infrastructure requirements | Check for IaC files if declared (Terraform, Pulumi, CloudFormation) |
+| Security requirements | Verify auth middleware exists, secrets not hardcoded |
+| Testing requirements | Check test coverage meets declared thresholds |
+| Code organization | Verify directory structure matches declared patterns |
 
-For violations, create discrepancy bead.
+Adapt checks based on the actual principles in the project's constitution. For violations, create discrepancy bead.
 
 ### 5. Auto-Close Completed Tasks
 
@@ -144,7 +147,7 @@ For tasks where:
 Auto-close the bead:
 
 ```bash
-bd close <bead-id> --reason "Auto-closed by /speckit.reconcile - task marked complete in tasks.md"
+bd close <bead-id> --reason "Auto-closed by /specbeads.reconcile - task marked complete in tasks.md"
 ```
 
 In `--dry-run` mode, report what would be closed without executing.
@@ -167,7 +170,7 @@ bd create --type task \
 
 **Type**: <Beads-Tasks Mismatch | Test Failure | Architecture Drift | Constitution Violation>
 **Detected**: <timestamp>
-**Source**: `/speckit.reconcile` validation
+**Source**: `/specbeads.reconcile` validation
 
 ## Details
 
@@ -191,17 +194,17 @@ What should be done about this discrepancy?
 Please update this bead with your decision and close it when resolved.
 ```
 
-### 7. Handle Non-Beanified Tasks
+### 7. Handle Non-Beadified Tasks
 
 If tasks.md contains tasks without corresponding beads, report:
 
 ```
 Found <N> tasks in tasks.md without corresponding beads.
 
-Run `/speckit.beanify` to create beads for these tasks.
+Run `/specbeads.beadify` to create beads for these tasks.
 ```
 
-Do NOT auto-create beads (that's beanify's job).
+Do NOT auto-create beads (that's beadify's job).
 
 ### 8. Report Summary
 
@@ -266,7 +269,7 @@ And replace "Actions Taken" with "Actions That Would Be Taken".
 
 - **Discrepancies create beads, not auto-fix**: User must decide resolution
 - **Build/test failures are discrepancies**: Don't silently pass broken code
-- **Non-beanified tasks → suggest beanify**: Don't duplicate that command's logic
+- **Non-beadified tasks → suggest beadify**: Don't duplicate that command's logic
 - **Auto-close only when confident**: tasks.md `[x]` + tests pass = safe to close
 - **Priority 1 for discrepancy beads**: These need attention
 - **Read-only in dry-run**: No mutations, only reporting

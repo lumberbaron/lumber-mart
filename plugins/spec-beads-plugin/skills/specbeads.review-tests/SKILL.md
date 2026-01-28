@@ -1,5 +1,5 @@
 ---
-name: review-tests
+name: specbeads.review-tests
 description: Review tests (unit, integration, e2e) for completeness, usefulness, output validation, isolation, and readability. Use when asked to review tests, audit test coverage, check test quality, or evaluate test effectiveness. Creates bug beads for issues found.
 allowed_tools:
   - Bash(bd create *)
@@ -78,4 +78,4 @@ bd create --type=bug --priority=<1-3> --title="Test: <issue>" --description="<fi
 **Dry-run mode**: List issues in a table format without creating beads:
 | Severity | File | Issue | Would Create |
 |----------|------|-------|--------------|
-| major | test_foo.go | Description | `bd create --type=bug ...` |
+| major | tests/user.test.ts | Description | `bd create --type=bug ...` |
