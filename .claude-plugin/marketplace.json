@@ -14,6 +14,12 @@
       "source": "./plugins/circuits-plugin",
       "category": "hardware",
       "keywords": ["hardware", "electronics", "datasheets", "wavejson", "circuit-synth"]
+    },
+    {
+      "name": "spec-beads-plugin",
+      "source": "./plugins/spec-beads-plugin",
+      "category": "workflow",
+      "keywords": ["spec-kit", "beads", "specifications", "task-tracking", "code-review"]
     }
   ]
 }
