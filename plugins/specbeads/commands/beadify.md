@@ -45,7 +45,7 @@ If a spec folder name was provided in arguments, override `FEATURE_DIR` to `spec
 
 Read from `FEATURE_DIR`:
 - **Required**: `tasks.md`, `spec.md`
-- **Optional**: `plan.md`, `.specify/memory/constitution.md`
+- **Optional**: `plan.md`
 
 ### 3. Parse tasks.md
 
@@ -133,24 +133,7 @@ bd create --type task \
 **File path**: <extracted path from description, e.g., internal/db/connect.go>
 **Implements**: <US# reference if present, linked to spec.md>
 **Parallelizable**: <Yes if [P] marker present, No otherwise>
-
-**Constitution alignment**: <relevant principle based on task content>
 ```
-
-**Constitution Principle Mapping** (auto-detect based on task keywords):
-
-If the project has a constitution file (`.specify/memory/constitution.md`), map task keywords to relevant principles. Example mappings:
-
-| Task Pattern | Principle Example |
-|--------------|-------------------|
-| auth, login, session, JWT, OAuth | Security & Authentication |
-| API, endpoint, REST, GraphQL | API Design |
-| terraform, AWS, infrastructure, deploy | Infrastructure-as-Code |
-| test, spec, coverage, mock | Testing Standards |
-| database, migration, schema | Data Management |
-| cache, performance, optimization | Performance |
-
-Adapt mappings based on the actual principles defined in the project's constitution.
 
 **Priority mapping**:
 - Tasks in early phases (Setup/Foundational): P1 (blocking)

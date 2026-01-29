@@ -1,5 +1,5 @@
 ---
-description: Lightweight one-way sync from beads to tasks.md. Checks off tasks whose beads are closed, with basic file-existence validation.
+description: Bidirectional sync between beads and tasks.md. Checks off tasks for closed beads, closes beads for completed tasks, and reports orphans.
 ---
 
 ## User Input
@@ -14,8 +14,9 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Parse `$ARGUMENTS` for:
 - **Spec folder name**: If provided (e.g., `001-user-auth`), use that spec instead of deriving from branch
-- **`--dry-run`**: Report what would change without modifying tasks.md
+- **`--dry-run`**: Report what would change without modifying tasks.md or closing beads
 - **`--no-validate`**: Skip file-existence validation checks
+- **`--direction <both|beads-to-tasks|tasks-to-beads>`**: Sync direction (default: `both`)
 
 ## Outline
 
@@ -61,7 +62,7 @@ For each bead:
 - Map bead ID to task ID
 - Map bead ID to status (open/closed)
 
-### 4. Match Closed Beads to Pending Tasks
+### 4a. Beads to Tasks (skip if `--direction tasks-to-beads`)
 
 Find tasks where:
 - tasks.md shows `[ ]` (pending)
@@ -69,26 +70,55 @@ Find tasks where:
 
 These are candidates for check-off.
 
-Skip tasks that have no matching bead (those are untracked — suggest `/specbeads.beadify`).
-
-### 5. Lightweight Validation (unless `--no-validate`)
+#### Validation (unless `--no-validate`)
 
 For each candidate task, do a basic file-existence check:
 - Extract file paths mentioned in the task description
 - Verify each referenced file exists on disk
 
-If any referenced file is missing, flag that task as a **warning** and skip checking it off. Report it in the summary.
+If any referenced file is missing, flag that task as a **warning** and skip checking it off.
 
-### 6. Update tasks.md
+#### Apply
 
 For each validated candidate (unless `--dry-run`):
 - Change `- [ ] T###` to `- [x] T###` in tasks.md
 
 Write the updated tasks.md back to disk.
 
-In `--dry-run` mode, report what would change without writing.
+### 4b. Tasks to Beads (skip if `--direction beads-to-tasks`)
 
-### 7. Report Summary
+Find beads where:
+- A corresponding task exists in tasks.md and is marked `[x]` (complete)
+- The bead is still **open**
+
+These are candidates for auto-close.
+
+#### Validation (unless `--no-validate`)
+
+For each candidate bead, do a basic file-existence check:
+- Extract file paths mentioned in the bead description or the corresponding task description
+- Verify each referenced file exists on disk
+
+If any referenced file is missing, flag that bead as a **warning** and skip closing it.
+
+#### Apply
+
+For each validated candidate (unless `--dry-run`):
+
+```bash
+bd close <bead-id> --reason "Auto-closed by /specbeads.sync - task marked complete in tasks.md"
+```
+
+### 4c. Orphan Detection
+
+Identify and report (never auto-create or auto-delete):
+
+- **Unbeadified tasks**: Tasks in tasks.md with no corresponding bead
+- **Orphan beads**: Beads with a `T###:` title pattern but no matching task in tasks.md
+
+These are reported in the summary only.
+
+### 5. Report Summary
 
 Output a summary:
 
@@ -96,7 +126,9 @@ Output a summary:
 Sync Report for specs/<feature>
 ================================
 
-## Results
+## Direction: <both | beads-to-tasks | tasks-to-beads>
+
+## Beads → Tasks
 
 | Category | Count |
 |----------|-------|
@@ -104,21 +136,50 @@ Sync Report for specs/<feature>
 | Already complete | <N> |
 | Checked off this run | <N> |
 | Warnings (skipped) | <N> |
-| Tasks without beads | <N> |
 
-## Tasks Checked Off
+### Tasks Checked Off
 
 - T###: <description>
-- T###: <description>
+- ...
 
-## Warnings
+### Warnings
 
 - T###: <description> — missing file: <path>
 
-## Untracked Tasks
+## Tasks → Beads
+
+| Category | Count |
+|----------|-------|
+| Total beads | <N> |
+| Already closed | <N> |
+| Closed this run | <N> |
+| Warnings (skipped) | <N> |
+
+### Beads Closed
+
+- <bead-id> (T###): <description>
+- ...
+
+### Warnings
+
+- <bead-id> (T###): <description> — missing file: <path>
+
+## Orphans
+
+| Category | Count |
+|----------|-------|
+| Unbeadified tasks | <N> |
+| Orphan beads | <N> |
+
+### Unbeadified Tasks
 
 <N> tasks in tasks.md have no corresponding beads.
 Run `/specbeads.beadify` to create beads for these tasks.
+
+### Orphan Beads
+
+<N> beads have T### titles but no matching task in tasks.md.
+Review these beads manually — they may reference removed or renamed tasks.
 ```
 
 In `--dry-run` mode, prefix with:
@@ -126,17 +187,18 @@ In `--dry-run` mode, prefix with:
 DRY RUN - No changes made. The following would occur:
 ```
 
-And replace "Checked Off" with "Would Check Off".
+And replace "Checked Off" / "Closed" with "Would Check Off" / "Would Close".
 
 ## Error Handling
 
 - If `bd` commands fail, report the error and abort
 - If tasks.md cannot be parsed, report the error and abort
-- Validation warnings do not abort — they skip individual tasks and report
+- Validation warnings do not abort — they skip individual items and report
 
 ## Design Principles
 
-- **One-directional**: Beads → tasks.md only. Does not close beads or create beads.
+- **Bidirectional**: Syncs both beads→tasks.md and tasks.md→beads by default
 - **Lightweight**: No builds, no tests, no architecture checks. Just status sync with basic file validation.
-- **Safe**: Validation catches obvious mismatches before checking off. `--dry-run` available for preview.
-- **Non-destructive**: Only changes `[ ]` to `[x]`. Never unchecks tasks or modifies bead state.
+- **Safe**: Validation catches obvious mismatches before syncing. `--dry-run` available for preview.
+- **Direction control**: Use `--direction` to limit to one direction if needed. The old one-way behavior is available via `--direction beads-to-tasks`.
+- **Report-only orphans**: Orphan detection never auto-creates or auto-deletes — only reports.

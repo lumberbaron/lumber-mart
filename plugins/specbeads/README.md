@@ -26,7 +26,8 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 |---------|-------------|
 | `/specbeads.init` | Initialize a repository with both spec-kit and beads |
 | `/specbeads.beadify` | Convert tasks.md into beads (epics for phases, tasks as children) |
-| `/specbeads.reconcile` | Validate and sync state between beads, tasks.md, and implementation |
+| `/specbeads.sync` | Bidirectional sync between beads and tasks.md (check off tasks, close beads, report orphans) |
+| `/specbeads.status` | Read-only dashboard showing project progress, phase status, and sync health |
 
 ### Workflow
 
@@ -34,7 +35,9 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 2. **Create specs**: Use spec-kit to create feature specs and task breakdowns
 3. **Convert to beads**: Run `/specbeads.beadify` to create trackable work items
 4. **Work on tasks**: Use `bd ready` to see available work, `bd close` when done
-5. **Stay in sync**: Run `/specbeads.reconcile` periodically to catch discrepancies
+5. **Stay in sync**: Run `/specbeads.sync` to keep beads and tasks.md aligned
+6. **Check progress**: Run `/specbeads.status` to see overall progress and sync health
+7. **Review quality**: Run review commands to find issues in code, tests, docs, or spec conformance
 
 ## Skills
 
@@ -43,6 +46,7 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 | `specbeads.review-code` | Review code for quality issues, create bug beads for findings |
 | `specbeads.review-docs` | Review documentation for completeness and accuracy |
 | `specbeads.review-tests` | Review tests for coverage and quality issues |
+| `specbeads.review-spec` | Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md) |
 
 ### Usage
 
@@ -50,6 +54,7 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 /specbeads.review-code src/auth/
 /specbeads.review-docs --dry-run
 /specbeads.review-tests tests/unit/
+/specbeads.review-spec 001-user-auth
 ```
 
 All review skills support `--dry-run` to preview findings without creating beads.
@@ -63,14 +68,40 @@ All review skills support `--dry-run` to preview findings without creating beads
 - `--skip-completed` - Don't create beads for tasks marked `[x]`
 - `--force` - Create beads even if duplicates detected
 
-### specbeads.reconcile
+### specbeads.sync
 
-- `[spec-folder]` - Specific spec folder to reconcile
-- `--dry-run` - Report discrepancies without making changes
-- `--skip-tests` - Skip build/test validation
-- `--verbose` - Show detailed validation output
+- `[spec-folder]` - Specific spec folder to sync
+- `--dry-run` - Report what would change without making modifications
+- `--no-validate` - Skip file-existence validation checks
+- `--direction <both|beads-to-tasks|tasks-to-beads>` - Sync direction (default: `both`)
+
+### specbeads.status
+
+- `[spec-folder]` - Specific spec folder to report on
+- `--verbose` - Show per-task detail tables within each phase
+
+### specbeads.review-spec
+
+- `[path]` - Path to focus the review (default: entire repo)
+- `[spec-folder]` - Specific spec folder (e.g., `001-user-auth`)
+- `--dry-run` - List findings without creating beads
 
 ## Version Compatibility
 
 - spec-kit: >= 1.0.0
 - beads: >= 1.0.0
+
+## Migration from v1.x
+
+v2.0.0 removes the `/specbeads.reconcile` command. Its responsibilities are now split across more focused commands:
+
+| Old (reconcile) | New |
+|---|---|
+| Beads/tasks sync | `/specbeads.sync` (now bidirectional) |
+| Build/test validation | `/specbeads.review-spec` |
+| Architecture checks | `/specbeads.review-spec` |
+| Constitution alignment | `/specbeads.review-spec` |
+| Orphan detection | `/specbeads.sync` (orphan reporting) |
+| Status dashboard | `/specbeads.status` |
+
+The default `sync` direction is now `both` (bidirectional). To get the old one-way behavior, use `--direction beads-to-tasks`.
