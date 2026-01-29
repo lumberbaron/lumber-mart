@@ -1,5 +1,5 @@
 ---
-description: Review repository documentation for quality, completeness, and consistency. Creates bug beads for errors/inconsistencies and task beads for missing content.
+description: Review repository documentation (README.md and CLAUDE.md) for quality, completeness, and consistency. Creates bug beads for errors/inconsistencies and task beads for missing content.
 ---
 
 # Documentation Review
@@ -22,7 +22,7 @@ Parse `$ARGUMENTS` for:
 
 ## Workflow
 
-1. Find all README and documentation files in scope
+1. Find all README and CLAUDE.md files in scope
 2. Evaluate against quality criteria
 3. Check for existing beads: `bd list --status=open`
 4. For each issue found, skip if a bead already exists with matching file/issue
@@ -40,6 +40,8 @@ Before creating a bead, check if one already exists:
 
 ### Structure (Progressive Disclosure)
 
+README.md files belong at **component boundaries** — the repo root plus the top-level directory of each major component (e.g., `frontend/`, `backend/`, `infra/`, `docs/`). Most subdirectories within a component should not have their own README. If a directory only needs a brief description and a pointer to its files, a CLAUDE.md index is sufficient.
+
 **Root README.md**:
 - Project purpose (why it exists)
 - What it does (brief overview)
@@ -47,11 +49,13 @@ Before creating a bead, check if one already exists:
 - Links to component docs
 - NO deep architectural details
 
-**Component READMEs**:
+**Component READMEs** (top-level component dirs only):
 - Component's purpose in detail
 - Architectural decisions
 - Component-specific setup
 - Internal APIs/interfaces
+
+Do **not** flag missing READMEs in nested subdirectories (e.g., `src/utils/`, `lib/internal/`). Navigation within a component is handled by CLAUDE.md.
 
 ### Content Quality
 
@@ -61,17 +65,49 @@ Before creating a bead, check if one already exists:
 - **Complete**: Prerequisites listed, all steps included
 - **Consistent**: Uniform terminology and formatting
 
+Content Quality applies primarily to README prose. For CLAUDE.md, focus on accuracy (index entries point to real files) and consistency (uniform table format).
+
+### CLAUDE.md Navigation Index
+
+CLAUDE.md files provide progressive disclosure via tabular indexes, pointing readers to the right file at the right time. README.md holds invisible knowledge (architecture, design decisions, invariants); CLAUDE.md holds navigation.
+
+> CLAUDE.md conventions inspired by solatis/claude-config (MIT).
+
+**Coverage** — Non-trivial directories should have a CLAUDE.md. Skip generated dirs, vendored deps, stubs (`.gitkeep` only), `.git`, `node_modules`, `__pycache__`, `dist`, `build`, and similar.
+
+**Tabular index format** — Each CLAUDE.md must contain at least one markdown table with columns: `File` (or `Directory`), `What`, `When to read`. Entries should use:
+- Backtick-wrapped file/directory names (e.g., `` `src/` ``)
+- Noun-based "What" descriptions (e.g., "Entry point", "Test utilities")
+- Action-verb "When to read" triggers (e.g., "Adding a new route", "Debugging test failures")
+
+**Content separation (subdirectory CLAUDE.md only)** — Subdirectory CLAUDE.md files should contain only:
+- A one-sentence overview of the directory's purpose
+- One or more tabular indexes
+
+They should **not** contain architecture explanations, design decisions, invariants, or multi-paragraph prose. That content belongs in README.md.
+
+**Root CLAUDE.md is exempt** — The root CLAUDE.md may additionally contain operational sections (Build, Test, Lint commands), agent instruction sections (e.g., beads workflow, tool configuration), and other project-wide guidance. This is expected and should not be flagged.
+
+**Index drift** — Flag when:
+- A file or subdirectory exists in the directory but is missing from the CLAUDE.md index (excluding dotfiles, generated artifacts, and files covered by glob patterns in the index)
+- An index entry references a file or directory that does not exist
+- A CLAUDE.md index links to a README that doesn't exist, or a README references a component whose CLAUDE.md is missing
+
 ## Checklist
 
 - [ ] Root README has: purpose, overview, quick start
 - [ ] Root README links to component docs
-- [ ] Major directories have READMEs if non-trivial
+- [ ] Each major component root has a README (not nested subdirs)
 - [ ] No outdated references (paths, commands)
 - [ ] Code examples syntactically correct
 - [ ] Referenced files/commands exist
 - [ ] Consistent terminology
 - [ ] No duplicate information
 - [ ] Progressive disclosure maintained
+- [ ] Non-trivial directories have CLAUDE.md files
+- [ ] Each CLAUDE.md has a tabular index (`File`/`Directory`, `What`, `When to read`)
+- [ ] Subdirectory CLAUDE.md files contain only overview + index (no architecture prose)
+- [ ] CLAUDE.md indexes are in sync with actual directory contents (no drift)
 
 ## Output
 
@@ -88,6 +124,12 @@ For each issue: note file, severity, brief explanation.
   ```bash
   bd create --type=task --priority=<2-4> --title="Docs: <what to add>" --description="<what's needed and why>"
   ```
+
+**Severity guide**:
+- **P1** — Security-relevant: docs omit auth steps, expose secrets in examples, or give dangerous command examples
+- **P2** — Broken: code examples that error, paths/commands that don't exist, index entries pointing to missing files
+- **P3** — Stale or incomplete: outdated references, missing CLAUDE.md coverage, index drift
+- **P4** — Polish: formatting inconsistencies, verbose wording, missing "When to read" triggers
 
 **Dry-run mode**: List issues in a table format without creating beads:
 | Type | Severity | File | Issue | Would Create |
