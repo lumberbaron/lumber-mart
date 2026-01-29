@@ -75,6 +75,8 @@ Files created/modified:
 - .specify/ (spec-kit configuration)
 - .beads/ (beads configuration)
 - CLAUDE.md (beads workflow instructions)
+
+Close and re-open claude to start using spec-kit and beads.
 ```
 
 Unless `--no-commit` was specified, ask the user if they want to commit these changes. If yes:

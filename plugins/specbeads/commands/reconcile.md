@@ -69,8 +69,8 @@ Store:
 Query existing beads:
 
 ```bash
-bd list --type task --format json 2>/dev/null || bd list --type task
-bd list --type epic --format json 2>/dev/null || bd list --type epic
+bd list --type task --status=all --format json 2>/dev/null || bd list --type task --status=all
+bd list --type epic --status=all --format json 2>/dev/null || bd list --type epic --status=all
 ```
 
 For each bead:
