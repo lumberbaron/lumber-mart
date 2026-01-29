@@ -49,6 +49,21 @@ Extract structured information from integrated circuit and component datasheets 
 - Save to standardized datasheets/ directory
 - Source fidelity - only extracts from provided datasheet
 
+### specbeads
+
+Integrates [spec-kit](https://github.com/spec-kit/specify) with [beads](https://github.com/beads-project/beads) for streamlined specification-driven development. Convert spec-kit tasks into trackable beads, keep them synchronized, and run automated reviews that create beads for issues found.
+
+**Features:**
+- Initialize repos with both spec-kit and beads configuration
+- Convert tasks.md phase/task breakdowns into beads (epics and child tasks)
+- Bidirectional sync between beads and tasks.md
+- Project progress dashboard with phase status and sync health
+- Code review for quality issues (code smells, security, error handling)
+- Documentation review for completeness and accuracy
+- Test review for coverage, isolation, and output validation
+- Spec conformance review against spec.md, plan.md, and constitution.md
+- All review commands support `--dry-run` to preview findings without creating beads
+
 ## Usage
 
 ### Adding This Marketplace
