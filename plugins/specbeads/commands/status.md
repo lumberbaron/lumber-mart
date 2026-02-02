@@ -55,16 +55,39 @@ Read `FEATURE_DIR/tasks.md` and parse:
 
 #### Beads
 
-Query all beads:
+> [!IMPORTANT]
+> Do NOT use a bare `bd list --type task --status=all` to load beads.
+> `bd list` defaults to `--limit 50`, silently dropping beads beyond the first 50
+> and causing status to report incorrect sync health. Use the epic-walk approach below.
+
+**Step 1**: Enumerate phase epics:
 
 ```bash
-bd list --type task --status=all --format json 2>/dev/null || bd list --type task --status=all
-bd list --type epic --status=all --format json 2>/dev/null || bd list --type epic --status=all
+bd list --type epic --status=all
 ```
 
-For each bead:
+Filter to epics whose title matches `Phase N:`.
+
+**Step 2**: Walk each epic's children:
+
+For each phase epic, run `bd show <epic-id>` and parse the `CHILDREN` section.
+Each child line contains a bead ID, status indicator (`✓` closed, `○` open, `?` deleted), and title.
+
+**Step 3**: Search for unmatched tasks:
+
+After the epic walk, compare task IDs from tasks.md against the map built in Step 2.
+For any task ID **not yet found**, search directly with `bd search "T029:" --type task --status=all --limit 0`.
+This catches beads created outside of phase epics. Run one search per missing task ID.
+
+> `bd search` also defaults to `--limit 50`; always pass `--limit 0`.
+
+**Step 4**: Build the bead-to-task map:
+
+For each discovered bead (from Steps 2 and 3):
 - Extract task ID if title contains `T###:` pattern
 - Map bead ID to task ID and status (open/closed)
+- Skip children with `?` status (deleted beads)
+- Skip children with `?` status (deleted beads)
 
 ### 3. Compute Metrics
 
