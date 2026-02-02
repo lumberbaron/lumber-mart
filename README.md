@@ -56,7 +56,7 @@ Integrates [spec-kit](https://github.com/spec-kit/specify) with [beads](https://
 /plugin list
 
 # Install a plugin
-/plugin install circuits-plugin@lumber-mart
+/plugin install circuits@lumber-mart
 ```
 
 ## License

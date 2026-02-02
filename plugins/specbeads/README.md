@@ -24,63 +24,63 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 
 | Command | Description |
 |---------|-------------|
-| `/specbeads.init` | Initialize a repository with both spec-kit and beads |
-| `/specbeads.beadify` | Convert tasks.md into beads (epics for phases, tasks as children) |
-| `/specbeads.sync` | Bidirectional sync between beads and tasks.md (check off tasks, close beads, report orphans) |
-| `/specbeads.status` | Read-only dashboard showing project progress, phase status, and sync health |
+| `/specbeads:init` | Initialize a repository with both spec-kit and beads |
+| `/specbeads:beadify` | Convert tasks.md into beads (epics for phases, tasks as children) |
+| `/specbeads:sync` | Bidirectional sync between beads and tasks.md (check off tasks, close beads, report orphans) |
+| `/specbeads:status` | Read-only dashboard showing project progress, phase status, and sync health |
 
 ### Workflow
 
-1. **Initialize**: Run `/specbeads.init` to set up spec-kit and beads in your repo
+1. **Initialize**: Run `/specbeads:init` to set up spec-kit and beads in your repo
 2. **Create specs**: Use spec-kit to create feature specs and task breakdowns
-3. **Convert to beads**: Run `/specbeads.beadify` to create trackable work items
+3. **Convert to beads**: Run `/specbeads:beadify` to create trackable work items
 4. **Work on tasks**: Use `bd ready` to see available work, `bd close` when done
-5. **Stay in sync**: Run `/specbeads.sync` to keep beads and tasks.md aligned
-6. **Check progress**: Run `/specbeads.status` to see overall progress and sync health
+5. **Stay in sync**: Run `/specbeads:sync` to keep beads and tasks.md aligned
+6. **Check progress**: Run `/specbeads:status` to see overall progress and sync health
 7. **Review quality**: Run review commands to find issues in code, tests, docs, or spec conformance
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| `specbeads.review-code` | Review code for quality issues, create bug beads for findings |
-| `specbeads.review-docs` | Review documentation for completeness and accuracy |
-| `specbeads.review-tests` | Review tests for coverage and quality issues |
-| `specbeads.review-spec` | Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md) |
+| `specbeads:review-code` | Review code for quality issues, create bug beads for findings |
+| `specbeads:review-docs` | Review documentation for completeness and accuracy |
+| `specbeads:review-tests` | Review tests for coverage and quality issues |
+| `specbeads:review-spec` | Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md) |
 
 ### Usage
 
 ```
-/specbeads.review-code src/auth/
-/specbeads.review-docs --dry-run
-/specbeads.review-tests tests/unit/
-/specbeads.review-spec 001-user-auth
+/specbeads:review-code src/auth/
+/specbeads:review-docs --dry-run
+/specbeads:review-tests tests/unit/
+/specbeads:review-spec 001-user-auth
 ```
 
 All review skills support `--dry-run` to preview findings without creating beads.
 
 ## Command Options
 
-### specbeads.beadify
+### specbeads:beadify
 
 - `[spec-folder]` - Specific spec folder (e.g., `001-user-auth`)
 - `--dry-run` - Preview without creating beads
 - `--skip-completed` - Don't create beads for tasks marked `[x]`
 - `--force` - Create beads even if duplicates detected
 
-### specbeads.sync
+### specbeads:sync
 
 - `[spec-folder]` - Specific spec folder to sync
 - `--dry-run` - Report what would change without making modifications
 - `--no-validate` - Skip file-existence validation checks
 - `--direction <both|beads-to-tasks|tasks-to-beads>` - Sync direction (default: `both`)
 
-### specbeads.status
+### specbeads:status
 
 - `[spec-folder]` - Specific spec folder to report on
 - `--verbose` - Show per-task detail tables within each phase
 
-### specbeads.review-spec
+### specbeads:review-spec
 
 - `[path]` - Path to focus the review (default: entire repo)
 - `[spec-folder]` - Specific spec folder (e.g., `001-user-auth`)
@@ -93,15 +93,15 @@ All review skills support `--dry-run` to preview findings without creating beads
 
 ## Migration from v1.x
 
-v2.0.0 removes the `/specbeads.reconcile` command. Its responsibilities are now split across more focused commands:
+v2.0.0 removes the `/specbeads:reconcile` command. Its responsibilities are now split across more focused commands:
 
 | Old (reconcile) | New |
 |---|---|
-| Beads/tasks sync | `/specbeads.sync` (now bidirectional) |
-| Build/test validation | `/specbeads.review-spec` |
-| Architecture checks | `/specbeads.review-spec` |
-| Constitution alignment | `/specbeads.review-spec` |
-| Orphan detection | `/specbeads.sync` (orphan reporting) |
-| Status dashboard | `/specbeads.status` |
+| Beads/tasks sync | `/specbeads:sync` (now bidirectional) |
+| Build/test validation | `/specbeads:review-spec` |
+| Architecture checks | `/specbeads:review-spec` |
+| Constitution alignment | `/specbeads:review-spec` |
+| Orphan detection | `/specbeads:sync` (orphan reporting) |
+| Status dashboard | `/specbeads:status` |
 
 The default `sync` direction is now `both` (bidirectional). To get the old one-way behavior, use `--direction beads-to-tasks`.
