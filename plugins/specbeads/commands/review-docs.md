@@ -1,5 +1,5 @@
 ---
-description: Review repository documentation (README.md and CLAUDE.md) for quality, completeness, and consistency. Creates bug beads for errors/inconsistencies and task beads for missing content.
+description: Review repository documentation (README.md and CLAUDE.md) for quality, completeness, and consistency. Use --create-beads to file bug/task beads for issues found.
 ---
 
 # Documentation Review
@@ -18,7 +18,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Parse `$ARGUMENTS` for:
 - **Path**: Optional path to review (default: repo root, reviews all docs)
-- **`--dry-run`**: List issues without creating beads
+- **`--create-beads`**: Create beads for findings (default: report only)
 
 ## Workflow
 
@@ -113,7 +113,19 @@ They should **not** contain architecture explanations, design decisions, invaria
 
 For each issue: note file, severity, brief explanation.
 
-**Normal mode**:
+**Severity guide**:
+- **P1** — Security-relevant: docs omit auth steps, expose secrets in examples, or give dangerous command examples
+- **P2** — Broken: code examples that error, paths/commands that don't exist, index entries pointing to missing files
+- **P3** — Stale or incomplete: outdated references, missing CLAUDE.md coverage, index drift
+- **P4** — Polish: formatting inconsistencies, verbose wording, missing "When to read" triggers
+
+**Default mode**: List issues in a table format without creating beads:
+| Type | Severity | File | Issue | Would Create |
+|------|----------|------|-------|--------------|
+| bug | major | README.md | Description | `bd create --type=bug ...` |
+| task | P3 | docs/ | Missing X | `bd create --type=task ...` |
+
+**`--create-beads` mode**:
 
 - Errors/inconsistencies → bug beads:
   ```bash
@@ -124,15 +136,3 @@ For each issue: note file, severity, brief explanation.
   ```bash
   bd create --type=task --priority=<2-4> --title="Docs: <what to add>" --description="<what's needed and why>"
   ```
-
-**Severity guide**:
-- **P1** — Security-relevant: docs omit auth steps, expose secrets in examples, or give dangerous command examples
-- **P2** — Broken: code examples that error, paths/commands that don't exist, index entries pointing to missing files
-- **P3** — Stale or incomplete: outdated references, missing CLAUDE.md coverage, index drift
-- **P4** — Polish: formatting inconsistencies, verbose wording, missing "When to read" triggers
-
-**Dry-run mode**: List issues in a table format without creating beads:
-| Type | Severity | File | Issue | Would Create |
-|------|----------|------|-------|--------------|
-| bug | major | README.md | Description | `bd create --type=bug ...` |
-| task | P3 | docs/ | Missing X | `bd create --type=task ...` |

@@ -1,5 +1,5 @@
 ---
-description: Review tests (unit, integration, e2e) for completeness, usefulness, output validation, isolation, and readability. Creates bug beads for issues found.
+description: Review tests (unit, integration, e2e) for completeness, usefulness, output validation, isolation, and readability. Use --create-beads to file bug beads for issues found.
 ---
 
 # Tests Review
@@ -18,7 +18,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Parse `$ARGUMENTS` for:
 - **Path**: Required path to review (file or directory containing tests)
-- **`--dry-run`**: List issues without creating beads
+- **`--create-beads`**: Create beads for findings (default: report only)
 
 ## Workflow
 
@@ -76,12 +76,12 @@ Before creating a bead, check if one already exists:
 
 For each issue: note file, severity (critical/major/minor), brief explanation.
 
-**Normal mode**: Create beads for issues found:
-```bash
-bd create --type=bug --priority=<1-3> --title="Test: <issue>" --description="<file and explanation>"
-```
-
-**Dry-run mode**: List issues in a table format without creating beads:
+**Default mode**: List issues in a table format without creating beads:
 | Severity | File | Issue | Would Create |
 |----------|------|-------|--------------|
 | major | tests/user.test.ts | Description | `bd create --type=bug ...` |
+
+**`--create-beads` mode**: Create beads for issues found:
+```bash
+bd create --type=bug --priority=<1-3> --title="Test: <issue>" --description="<file and explanation>"
+```

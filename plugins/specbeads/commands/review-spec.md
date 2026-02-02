@@ -1,5 +1,5 @@
 ---
-description: Validate that implementation matches spec-kit artifacts (spec.md, plan.md, constitution.md). Creates bug beads for spec violations found.
+description: Validate that implementation matches spec-kit artifacts (spec.md, plan.md, constitution.md). Use --create-beads to file bug beads for spec violations found.
 ---
 
 # Spec Review
@@ -19,7 +19,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 Parse `$ARGUMENTS` for:
 - **Path**: Optional path to focus the review (default: entire repo)
 - **Spec folder name**: If provided (e.g., `001-user-auth`), use that spec instead of deriving from branch
-- **`--dry-run`**: List findings without creating beads
+- **`--create-beads`**: Create beads for findings (default: report only)
 
 ## Outline
 
@@ -28,7 +28,7 @@ Parse `$ARGUMENTS` for:
 Run prerequisite checks:
 
 ```bash
-./.specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+./.specify/scripts/bash/check-prerequisites.sh --json
 ```
 
 Parse the JSON response to get `FEATURE_DIR`.
@@ -49,7 +49,7 @@ If a spec folder name was provided in arguments, override `FEATURE_DIR` to `spec
 
 Read from `FEATURE_DIR`:
 - **Required**: `spec.md`
-- **Optional**: `plan.md`, `tasks.md`, `.specify/memory/constitution.md`
+- **Optional**: `plan.md`, `.specify/memory/constitution.md`
 
 Note which optional documents are present — validation criteria are gated on document availability.
 
@@ -105,13 +105,6 @@ Check that acceptance criteria from spec.md are tested:
 - Are error scenarios from the spec tested?
 - Are boundary conditions from the spec tested?
 
-#### 4.5 Task Completion Validation (requires tasks.md)
-
-For tasks marked `[x]` in tasks.md:
-
-- Do the referenced files exist and contain meaningful implementations?
-- Are there completed tasks whose implementations appear incomplete or stubbed?
-
 ### 5. Deduplication
 
 Before creating beads, check for existing ones:
@@ -124,7 +117,13 @@ Before creating beads, check for existing ones:
 
 For each finding: note the source document, the violated section/principle, the relevant code location, and a brief explanation.
 
-**Normal mode**: Create beads for findings:
+**Default mode**: List findings in a table format without creating beads:
+
+| Source | Section | Code Location | Issue | Would Create |
+|--------|---------|---------------|-------|--------------|
+| spec.md | US1 | src/auth.ts:42 | Description | `bd create --type=bug ...` |
+
+**`--create-beads` mode**: Create beads for findings:
 
 ```bash
 bd create --type=bug --priority=<1-3> \
@@ -140,13 +139,6 @@ bd create --type=bug --priority=<1-3> \
 - Architecture divergence from plan: P2
 - Constitution violations: P2
 - Missing acceptance test coverage: P2
-- Incomplete task implementations: P3
-
-**Dry-run mode**: List findings in a table format without creating beads:
-
-| Source | Section | Code Location | Issue | Would Create |
-|--------|---------|---------------|-------|--------------|
-| spec.md | US1 | src/auth.ts:42 | Description | `bd create --type=bug ...` |
 
 ### 7. Report Summary
 
@@ -161,7 +153,6 @@ Spec Review for specs/<feature>
 - spec.md: Yes
 - plan.md: <Yes | Not found>
 - constitution.md: <Yes | Not found>
-- tasks.md: <Yes | Not found>
 
 ## Findings
 
@@ -171,7 +162,6 @@ Spec Review for specs/<feature>
 | Architecture consistency | <N> |
 | Constitution alignment | <N> |
 | Acceptance criteria coverage | <N> |
-| Task completion validation | <N> |
 | **Total** | **<N>** |
 
 ## Beads Created
@@ -182,9 +172,9 @@ Spec Review for specs/<feature>
 (or "No issues found" if clean)
 ```
 
-In `--dry-run` mode, prefix with:
+In default (no `--create-beads`) mode, append:
 ```
-DRY RUN - No beads were created. The following would be created:
+To create beads for these findings, re-run with --create-beads
 ```
 
 ## Error Handling

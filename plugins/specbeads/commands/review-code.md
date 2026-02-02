@@ -1,5 +1,5 @@
 ---
-description: Review code for quality issues including code smells, concurrency problems, error handling, resource management, security vulnerabilities, and maintainability. Creates bug beads for critical/major issues found.
+description: Review code for quality issues including code smells, concurrency problems, error handling, resource management, security vulnerabilities, and maintainability. Use --create-beads to file bug beads for issues found.
 ---
 
 # Code Review
@@ -18,7 +18,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Parse `$ARGUMENTS` for:
 - **Path**: Required path to review (file or directory)
-- **`--dry-run`**: List issues without creating beads
+- **`--create-beads`**: Create beads for findings (default: report only)
 
 ## Workflow
 
@@ -78,12 +78,12 @@ Before creating a bead, check if one already exists:
 
 For each issue: note file:line, severity (critical/major/minor), brief explanation.
 
-**Normal mode**: Create beads for critical/major issues:
-```bash
-bd create --type=bug --priority=<1-3> --title="Code: <issue>" --description="<file:line and explanation>"
-```
-
-**Dry-run mode**: List issues in a table format without creating beads:
+**Default mode**: List issues in a table format without creating beads:
 | Severity | File:Line | Issue | Would Create |
 |----------|-----------|-------|--------------|
 | critical | path:42 | Description | `bd create --type=bug ...` |
+
+**`--create-beads` mode**: Create beads for critical/major issues:
+```bash
+bd create --type=bug --priority=<1-3> --title="Code: <issue>" --description="<file:line and explanation>"
+```

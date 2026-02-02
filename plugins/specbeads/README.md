@@ -5,10 +5,10 @@ A Claude Code plugin that integrates [spec-kit](https://github.com/spec-kit/spec
 ## Overview
 
 This plugin bridges two tools:
-- **spec-kit**: Manages feature specifications, plans, and task breakdowns
+- **spec-kit**: Manages feature specifications, plans, and design artifacts
 - **beads**: Tracks work items (epics, tasks, bugs) with dependencies
 
-The plugin provides commands to convert spec-kit tasks into beads and keep them synchronized, plus review skills that create beads for issues found.
+The plugin decomposes spec-kit design artifacts directly into beads for implementation tracking, plus provides review skills that create beads for issues found.
 
 ## Prerequisites
 
@@ -25,19 +25,16 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 | Command | Description |
 |---------|-------------|
 | `/specbeads:init` | Initialize a repository with both spec-kit and beads |
-| `/specbeads:beadify` | Convert tasks.md into beads (epics for phases, tasks as children) |
-| `/specbeads:sync` | Bidirectional sync between beads and tasks.md (check off tasks, close beads, report orphans) |
-| `/specbeads:status` | Read-only dashboard showing project progress, phase status, and sync health |
+| `/specbeads:beadify` | Decompose plan.md + spec.md into beads (epics for phases, tasks as children) |
 
 ### Workflow
 
 1. **Initialize**: Run `/specbeads:init` to set up spec-kit and beads in your repo
-2. **Create specs**: Use spec-kit to create feature specs and task breakdowns
-3. **Convert to beads**: Run `/specbeads:beadify` to create trackable work items
-4. **Work on tasks**: Use `bd ready` to see available work, `bd close` when done
-5. **Stay in sync**: Run `/specbeads:sync` to keep beads and tasks.md aligned
-6. **Check progress**: Run `/specbeads:status` to see overall progress and sync health
-7. **Review quality**: Run review commands to find issues in code, tests, docs, or spec conformance
+2. **Create specs**: Use spec-kit to create feature specs (spec.md, plan.md, data-model.md, contracts/)
+3. **Decompose into beads**: Run `/specbeads:beadify` to create phase epics and task beads directly from specs
+4. **Review the plan**: Beadify outputs a formatted implementation plan — refine by running beadify again with instructions
+5. **Work on tasks**: Use `bd ready` to see available work, `bd close` when done
+6. **Review quality**: Run review commands to find issues in code, tests, docs, or spec conformance
 
 ## Skills
 
@@ -64,21 +61,9 @@ All review skills support `--dry-run` to preview findings without creating beads
 ### specbeads:beadify
 
 - `[spec-folder]` - Specific spec folder (e.g., `001-user-auth`)
-- `--dry-run` - Preview without creating beads
-- `--skip-completed` - Don't create beads for tasks marked `[x]`
+- `--dry-run` - Preview implementation plan without creating beads
 - `--force` - Create beads even if duplicates detected
-
-### specbeads:sync
-
-- `[spec-folder]` - Specific spec folder to sync
-- `--dry-run` - Report what would change without making modifications
-- `--no-validate` - Skip file-existence validation checks
-- `--direction <both|beads-to-tasks|tasks-to-beads>` - Sync direction (default: `both`)
-
-### specbeads:status
-
-- `[spec-folder]` - Specific spec folder to report on
-- `--verbose` - Show per-task detail tables within each phase
+- `<refinement instructions>` - When existing beads are detected, modify the decomposition (e.g., "split auth into its own phase")
 
 ### specbeads:review-spec
 
@@ -91,17 +76,16 @@ All review skills support `--dry-run` to preview findings without creating beads
 - spec-kit: >= 1.0.0
 - beads: >= 1.0.0
 
-## Migration from v1.x
+## Migration from v2.x
 
-v2.0.0 removes the `/specbeads:reconcile` command. Its responsibilities are now split across more focused commands:
+v3.0.0 removes three commands and rewrites beadify:
 
-| Old (reconcile) | New |
-|---|---|
-| Beads/tasks sync | `/specbeads:sync` (now bidirectional) |
-| Build/test validation | `/specbeads:review-spec` |
-| Architecture checks | `/specbeads:review-spec` |
-| Constitution alignment | `/specbeads:review-spec` |
-| Orphan detection | `/specbeads:sync` (orphan reporting) |
-| Status dashboard | `/specbeads:status` |
+| Removed | Replacement |
+|---------|-------------|
+| `/specbeads:sync` | No longer needed — beads is the single source of truth. Use `bd list`, `bd ready`, `bd show` directly. |
+| `/specbeads:status` | No longer needed — use `bd ready`, `bd list --status=all`, or `bd stats` for progress. |
+| `/specbeads:setup-hooks` | Removed (was stashed in v2.x). |
 
-The default `sync` direction is now `both` (bidirectional). To get the old one-way behavior, use `--direction beads-to-tasks`.
+**beadify** no longer reads tasks.md. It now reads plan.md and spec.md directly, absorbing the task decomposition logic. Beads are the single source of truth for implementation work — there is no intermediate tasks.md file.
+
+The `--skip-completed` flag has been removed from beadify (no checkboxes to interpret). Use `--force` to recreate beads from scratch or pass refinement instructions to modify existing beads.
