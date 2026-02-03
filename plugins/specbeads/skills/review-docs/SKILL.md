@@ -1,5 +1,6 @@
 ---
-description: Review repository documentation (README.md and CLAUDE.md) for quality, completeness, and consistency. Use --create-beads to file bug/task beads for issues found.
+name: review-docs
+description: Review documentation (README.md and CLAUDE.md) for quality, completeness, and consistency. Use when asked to review docs, check documentation, validate README files, or audit CLAUDE.md coverage.
 ---
 
 # Documentation Review
@@ -22,11 +23,25 @@ Parse `$ARGUMENTS` for:
 
 ## Workflow
 
-1. Find all README and CLAUDE.md files in scope
-2. Evaluate against quality criteria
-3. Check for existing beads: `bd list --status=open`
-4. For each issue found, skip if a bead already exists with matching file/issue
-5. Create beads only for new issues
+1. Run deterministic validation script for structural issues
+2. Find all README and CLAUDE.md files in scope
+3. Evaluate against quality criteria
+4. Check for existing beads: `bd list --status=open`
+5. For each issue found, skip if a bead already exists with matching file/issue
+6. Create beads only for new issues
+
+### Deterministic Validation
+
+Before manual review, run the validation script for CLAUDE.md structural issues:
+
+```bash
+python3 ~/.claude/plugins/specbeads/skills/review-docs/scripts/validate-claude-md.py $PATH --json
+```
+
+Parse the JSON output and include structural issues (missing tables, missing references, index drift) in your findings. The script checks:
+- Presence of markdown tables with required columns
+- Whether referenced files/directories exist
+- Index drift (files not indexed, or index entries pointing to missing files)
 
 ### Deduplication
 

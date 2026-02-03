@@ -1,5 +1,6 @@
 ---
-description: Validate that implementation matches spec-kit artifacts (spec.md, plan.md, constitution.md). Use --create-beads to file bug beads for spec violations found.
+name: review-spec
+description: Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md). Use when asked to check spec conformance, validate implementation matches specs, or audit code against specifications.
 ---
 
 # Spec Review

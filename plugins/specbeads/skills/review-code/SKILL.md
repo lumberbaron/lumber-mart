@@ -1,5 +1,6 @@
 ---
-description: Review code for quality issues including code smells, concurrency problems, error handling, resource management, security vulnerabilities, and maintainability. Use --create-beads to file bug beads for issues found.
+name: review-code
+description: Review code for quality issues including code smells, concurrency problems, error handling, security vulnerabilities, and maintainability. Use when asked to review code quality, find bugs, audit code, or check for issues.
 ---
 
 # Code Review

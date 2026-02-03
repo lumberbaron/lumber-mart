@@ -1,5 +1,6 @@
 ---
-description: Review tests (unit, integration, e2e) for completeness, usefulness, output validation, isolation, and readability. Use --create-beads to file bug beads for issues found.
+name: review-tests
+description: Review tests for completeness, usefulness, isolation, and readability. Use when asked to review tests, check test quality, audit test coverage, or validate test files.
 ---
 
 # Tests Review

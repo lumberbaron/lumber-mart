@@ -20,12 +20,16 @@ The plugin decomposes spec-kit design artifacts directly into beads for implemen
 
 Copy this plugin to your Claude Code plugins directory or reference it in your project's `.claude/settings.json`.
 
-## Commands
+## Skills
 
-| Command | Description |
-|---------|-------------|
-| `/specbeads:init` | Initialize a repository with both spec-kit and beads |
-| `/specbeads:beadify` | Decompose plan.md + spec.md into beads (epics for phases, tasks as children) |
+| Skill | Description | Model-Invocable |
+|-------|-------------|-----------------|
+| `/specbeads:init` | Initialize a repository with both spec-kit and beads | No (user-only) |
+| `/specbeads:beadify` | Decompose plan.md + spec.md into beads (epics for phases, tasks as children) | Yes |
+| `/specbeads:review-spec` | Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md) | Yes |
+| `/specbeads:review-code` | Review code for quality issues, create bug beads for findings | Yes |
+| `/specbeads:review-docs` | Review documentation for completeness and accuracy | Yes |
+| `/specbeads:review-tests` | Review tests for coverage and quality issues | Yes |
 
 ### Workflow
 
@@ -34,29 +38,33 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 3. **Decompose into beads**: Run `/specbeads:beadify` to create phase epics and task beads directly from specs
 4. **Review the plan**: Beadify outputs a formatted implementation plan — refine by running beadify again with instructions
 5. **Work on tasks**: Use `bd ready` to see available work, `bd close` when done
-6. **Review quality**: Run review commands to find issues in code, tests, docs, or spec conformance
+6. **Review quality**: Run review skills to find issues in code, tests, docs, or spec conformance
 
-## Skills
+### Natural Language Triggers
 
-| Skill | Description |
-|-------|-------------|
-| `specbeads:review-code` | Review code for quality issues, create bug beads for findings |
-| `specbeads:review-docs` | Review documentation for completeness and accuracy |
-| `specbeads:review-tests` | Review tests for coverage and quality issues |
-| `specbeads:review-spec` | Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md) |
+Model-invocable skills can be triggered by natural language:
 
-### Usage
+- **beadify**: "generate beads for this feature", "convert this feature into beads", "create tasks from the spec", "decompose this into work items"
+- **review-spec**: "check if code matches the spec", "validate implementation", "review spec conformance"
+- **review-code**: "review the code in api/", "check this code for bugs", "audit this module"
+- **review-docs**: "review the docs for this project", "check the documentation", "validate CLAUDE.md files"
+- **review-tests**: "review the tests", "check test quality", "audit test coverage"
+
+### Usage Examples
 
 ```
+/specbeads:init
+/specbeads:beadify 001-user-auth
+/specbeads:beadify --dry-run
 /specbeads:review-code src/auth/
-/specbeads:review-docs --dry-run
+/specbeads:review-docs --create-beads
 /specbeads:review-tests tests/unit/
-/specbeads:review-spec 001-user-auth
+/specbeads:review-spec 001-user-auth --create-beads
 ```
 
-All review skills support `--dry-run` to preview findings without creating beads.
+All review skills support `--create-beads` to create beads for findings (default is report-only).
 
-## Command Options
+## Skill Options
 
 ### specbeads:beadify
 
@@ -69,16 +77,33 @@ All review skills support `--dry-run` to preview findings without creating beads
 
 - `[path]` - Path to focus the review (default: entire repo)
 - `[spec-folder]` - Specific spec folder (e.g., `001-user-auth`)
-- `--dry-run` - List findings without creating beads
+- `--create-beads` - Create beads for findings (default: report only)
+
+### specbeads:review-code / review-docs / review-tests
+
+- `[path]` - Path to review (required for review-code and review-tests)
+- `--create-beads` - Create beads for findings (default: report only)
 
 ## Version Compatibility
 
 - spec-kit: >= 1.0.0
 - beads: >= 1.0.0
 
+## Migration from v3.x
+
+v4.0.0 converts all commands to the skills format:
+
+| Change | Details |
+|--------|---------|
+| `commands/` → `skills/` | All command files moved to `skills/<name>/SKILL.md` format |
+| Model invocation | All skills except `init` are now model-invocable via natural language |
+| Validation script | `review-docs` now includes `scripts/validate-claude-md.py` for deterministic CLAUDE.md validation |
+
+The skill names and functionality remain the same. Invocation syntax is unchanged (`/specbeads:<skill-name>`).
+
 ## Migration from v2.x
 
-v3.0.0 removes three commands and rewrites beadify:
+v3.0.0 removed three commands and rewrote beadify:
 
 | Removed | Replacement |
 |---------|-------------|
@@ -87,5 +112,3 @@ v3.0.0 removes three commands and rewrites beadify:
 | `/specbeads:setup-hooks` | Removed (was stashed in v2.x). |
 
 **beadify** no longer reads tasks.md. It now reads plan.md and spec.md directly, absorbing the task decomposition logic. Beads are the single source of truth for implementation work — there is no intermediate tasks.md file.
-
-The `--skip-completed` flag has been removed from beadify (no checkboxes to interpret). Use `--force` to recreate beads from scratch or pass refinement instructions to modify existing beads.

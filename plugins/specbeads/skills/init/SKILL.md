@@ -1,5 +1,7 @@
 ---
-description: Initialize a git repository with spec-kit and beads configuration. Works for both new and existing repositories.
+name: init
+description: Initialize a git repository with spec-kit and beads configuration.
+disable-model-invocation: true
 ---
 
 # Initialize Repository with Spec-Kit and Beads
