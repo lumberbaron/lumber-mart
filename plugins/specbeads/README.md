@@ -24,18 +24,18 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 
 | Skill | Description | Model-Invocable |
 |-------|-------------|-----------------|
-| `/specbeads:init` | Initialize a repository with both spec-kit and beads | No (user-only) |
-| `/specbeads:beadify` | Decompose plan.md + spec.md into beads (epics for phases, tasks as children) | Yes |
-| `/specbeads:review-spec` | Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md) | Yes |
-| `/specbeads:review-code` | Review code for quality issues, create bug beads for findings | Yes |
-| `/specbeads:review-docs` | Review documentation for completeness and accuracy | Yes |
-| `/specbeads:review-tests` | Review tests for coverage and quality issues | Yes |
+| `/sb:init` | Initialize a repository with both spec-kit and beads | No (user-only) |
+| `/sb:beadify` | Decompose plan.md + spec.md into beads (epics for phases, tasks as children) | Yes |
+| `/sb:review-spec` | Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md) | Yes |
+| `/sb:review-code` | Review code for quality issues, create bug beads for findings | Yes |
+| `/sb:review-docs` | Review documentation for completeness and accuracy | Yes |
+| `/sb:review-tests` | Review tests for coverage and quality issues | Yes |
 
 ### Workflow
 
-1. **Initialize**: Run `/specbeads:init` to set up spec-kit and beads in your repo
+1. **Initialize**: Run `/sb:init` to set up spec-kit and beads in your repo
 2. **Create specs**: Use spec-kit to create feature specs (spec.md, plan.md, data-model.md, contracts/)
-3. **Decompose into beads**: Run `/specbeads:beadify` to create phase epics and task beads directly from specs
+3. **Decompose into beads**: Run `/sb:beadify` to create phase epics and task beads directly from specs
 4. **Review the plan**: Beadify outputs a formatted implementation plan — refine by running beadify again with instructions
 5. **Work on tasks**: Use `bd ready` to see available work, `bd close` when done
 6. **Review quality**: Run review skills to find issues in code, tests, docs, or spec conformance
@@ -53,13 +53,13 @@ Model-invocable skills can be triggered by natural language:
 ### Usage Examples
 
 ```
-/specbeads:init
-/specbeads:beadify 001-user-auth
-/specbeads:beadify --dry-run
-/specbeads:review-code src/auth/
-/specbeads:review-docs --create-beads
-/specbeads:review-tests tests/unit/
-/specbeads:review-spec 001-user-auth --create-beads
+/sb:init
+/sb:beadify 001-user-auth
+/sb:beadify --dry-run
+/sb:review-code src/auth/
+/sb:review-docs --create-beads
+/sb:review-tests tests/unit/
+/sb:review-spec 001-user-auth --create-beads
 ```
 
 All review skills support `--create-beads` to create beads for findings (default is report-only).
@@ -99,7 +99,7 @@ v4.0.0 converts all commands to the skills format:
 | Model invocation | All skills except `init` are now model-invocable via natural language |
 | Validation script | `review-docs` now includes `scripts/validate-claude-md.py` for deterministic CLAUDE.md validation |
 
-The skill names and functionality remain the same. Invocation syntax is unchanged (`/specbeads:<skill-name>`).
+The skill names and functionality remain the same. Invocation syntax is unchanged (`/sb:<skill-name>`).
 
 ## Migration from v2.x
 
@@ -107,8 +107,8 @@ v3.0.0 removed three commands and rewrote beadify:
 
 | Removed | Replacement |
 |---------|-------------|
-| `/specbeads:sync` | No longer needed — beads is the single source of truth. Use `bd list`, `bd ready`, `bd show` directly. |
-| `/specbeads:status` | No longer needed — use `bd ready`, `bd list --status=all`, or `bd stats` for progress. |
-| `/specbeads:setup-hooks` | Removed (was stashed in v2.x). |
+| `/sb:sync` | No longer needed — beads is the single source of truth. Use `bd list`, `bd ready`, `bd show` directly. |
+| `/sb:status` | No longer needed — use `bd ready`, `bd list --status=all`, or `bd stats` for progress. |
+| `/sb:setup-hooks` | Removed (was stashed in v2.x). |
 
 **beadify** no longer reads tasks.md. It now reads plan.md and spec.md directly, absorbing the task decomposition logic. Beads are the single source of truth for implementation work — there is no intermediate tasks.md file.

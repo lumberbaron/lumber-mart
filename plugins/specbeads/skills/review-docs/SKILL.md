@@ -1,5 +1,5 @@
 ---
-name: review-docs
+name: sb:review-docs
 description: Review documentation (README.md and CLAUDE.md) for quality, completeness, and consistency. Use when asked to review docs, check documentation, validate README files, or audit CLAUDE.md coverage.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: review-tests
+name: sb:review-tests
 description: Review tests for completeness, usefulness, isolation, and readability. Use when asked to review tests, check test quality, audit test coverage, or validate test files.
 ---
 

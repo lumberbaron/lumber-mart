@@ -1,5 +1,5 @@
 ---
-name: review-code
+name: sb:review-code
 description: Review code for quality issues including code smells, concurrency problems, error handling, security vulnerabilities, and maintainability. Use when asked to review code quality, find bugs, audit code, or check for issues.
 ---
 

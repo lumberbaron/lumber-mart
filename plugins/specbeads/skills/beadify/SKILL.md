@@ -1,5 +1,5 @@
 ---
-name: beadify
+name: sb:beadify
 description: Convert spec-kit artifacts (plan.md, spec.md) into beads for tracking implementation. Use when asked to generate beads, create tasks from specs, decompose a feature into work items, or convert specifications into trackable work.
 ---
 
