@@ -7,6 +7,9 @@ description: Review tests for completeness, usefulness, isolation, and readabili
 
 Review tests in the specified path for quality issues.
 
+> [!IMPORTANT]
+> Consult `REFERENCE.md` in this skill directory for the expected output format and level of detail.
+
 ## User Input
 
 ```text
@@ -73,16 +76,17 @@ Before creating a bead, check if one already exists:
 - Reasonable timeouts configured
 - Clear distinction from unit tests
 
+## Severity
+
+- **P1**: Shared mutable state, tests that never fail, tests masking real bugs
+- **P2**: Missing assertions on return values, unclear test names, no isolation
+- **P3**: Missing edge cases, minor readability issues
+
 ## Output
 
-For each issue: note file, severity (critical/major/minor), brief explanation.
+You MUST produce a report following the exact structure shown in `REFERENCE.md`.
 
-**Default mode**: List issues in a table format without creating beads:
-| Severity | File | Issue | Would Create |
-|----------|------|-------|--------------|
-| major | tests/user.test.ts | Description | `bd create --type=bug ...` |
-
-**`--create-beads` mode**: Create beads for issues found:
+**`--create-beads` mode**: Create beads for P1/P2 issues:
 ```bash
 bd create --type=bug --priority=<1-3> --title="Test: <issue>" --description="<file and explanation>"
 ```

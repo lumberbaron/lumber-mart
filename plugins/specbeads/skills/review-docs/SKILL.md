@@ -7,6 +7,9 @@ description: Review documentation (README.md and CLAUDE.md) for quality, complet
 
 Review documentation in the specified path (default: entire repository).
 
+> [!IMPORTANT]
+> Consult `REFERENCE.md` in this skill directory for the expected output format and level of detail.
+
 ## User Input
 
 ```text
@@ -190,19 +193,13 @@ They should **not** contain architecture explanations, design decisions, invaria
 
 ## Output
 
-For each issue: note file, severity, brief explanation.
+You MUST produce a report following the exact structure shown in `REFERENCE.md`.
 
 **Severity guide**:
 - **P1** — Security-relevant: docs omit auth steps, expose secrets in examples, or give dangerous command examples
 - **P2** — Broken: code examples that error, paths/commands that don't exist, quick start fails on copy-paste, index entries pointing to missing files
 - **P3** — Stale or incomplete: outdated references, missing prerequisites, missing env var docs, missing CLAUDE.md coverage, index drift, no expected output shown
 - **P4** — Polish: formatting inconsistencies, verbose wording, missing "When to read" triggers, missing platform-specific notes
-
-**Default mode**: List issues in a table format without creating beads:
-| Type | Severity | File | Issue | Would Create |
-|------|----------|------|-------|--------------|
-| bug | major | README.md | Description | `bd create --type=bug ...` |
-| task | P3 | docs/ | Missing X | `bd create --type=task ...` |
 
 **`--create-beads` mode**:
 

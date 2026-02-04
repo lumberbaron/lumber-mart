@@ -7,6 +7,9 @@ description: Review code for design issues that static analysis misses. Checks s
 
 Review code for design and architecture issues that linters and static analysis tools miss.
 
+> [!IMPORTANT]
+> Consult `REFERENCE.md` in this skill directory for the expected output format and level of detail.
+
 ## User Input
 
 ```text
@@ -37,7 +40,7 @@ If these aren't set up, recommend adding them before this review.
 2. Evaluate against design criteria below (skip mechanical checks tools handle)
 3. Check for existing beads: `bd list --status=open`
 4. For each issue found, skip if a bead already exists with matching file/issue
-5. Create beads only for new critical/major issues
+5. Create beads only for new P1/P2 issues
 
 ### Deduplication
 
@@ -111,25 +114,17 @@ Linters catch empty catches; this checks *appropriateness*:
 
 ## Severity
 
-- **Critical** (P1): Architectural issues blocking testability, security design flaws
-- **Major** (P2): SRP violations, mixed abstractions, leaky APIs
-- **Minor** (P3): Naming unclear but functional, minor API inconsistencies
+- **P1**: Architectural issues blocking testability, security design flaws
+- **P2**: SRP violations, mixed abstractions, leaky APIs
+- **P3**: Naming unclear but functional, minor API inconsistencies
 
 ---
 
-## Output Format
+## Output
 
-For each issue: file:line, severity, specific problem, and concrete fix.
+You MUST produce a report following the exact structure shown in `REFERENCE.md`.
 
-**Default mode**: List issues in a table:
-
-| Severity | File:Line | Issue | Fix |
-|----------|-----------|-------|-----|
-| major | auth.go:42 | `processUser` validates, transforms, AND persists | Extract to `validateUser`, `transformUser`, `saveUser` |
-| major | api/handler.ts:15 | HTTP parsing mixed with business logic | Move validation rules to domain layer |
-| minor | user.ts:55 | `handleUser` doesn't distinguish from other handlers | Rename: `createUserFromSignup` |
-
-**`--create-beads` mode**: Create beads for critical/major issues:
+**`--create-beads` mode**: Create beads for P1/P2 issues:
 ```bash
 bd create --type=bug --priority=<1-3> --title="Code: <specific issue>" --description="<file:line, explanation, and suggested fix>"
 ```
