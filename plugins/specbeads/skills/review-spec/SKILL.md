@@ -122,6 +122,8 @@ Before creating beads, check for existing ones:
 
 You MUST produce a report following this exact structure. This format is required for every review—do not deviate.
 
+**Table Format**: Use markdown tables (pipe-delimited) for ALL tables. Do not use ASCII box-drawing characters or other formats.
+
 ```
 ---
 Spec Review for specs/<feature-name>
@@ -183,19 +185,21 @@ Documents Reviewed
 ---
 ## Findings
 
-(Only include this section if there are issues)
+(Only include this section if there are issues. Insert a blank line between each finding for readability.)
 
 1. **FR-002 / US1-2**: <Short title>
+
    <Prose explanation: what the spec requires, what the implementation does, why it's a gap/partial>
 
 2. **FR-014 / US3-3**: <Short title>
+
    <Prose explanation>
 
 ---
 To create beads for these findings, re-run with --create-beads
 ```
 
-**Important**: The "Findings" section provides detailed prose explanations for each non-passing item. Reference the FR/US codes from the tables above for traceability.
+**Important**: The "Findings" section provides detailed prose explanations for each non-passing item. Reference the FR/US codes from the tables above for traceability. Always include a blank line between findings.
 
 ### 7. Bead Creation (`--create-beads` mode)
 
