@@ -1,11 +1,11 @@
 ---
 name: sb-review-code
-description: Review code for quality, security, and readability. Checks function size, naming, single responsibility, testability, concurrency, and security. Use when asked to review code, find bugs, audit code, check for issues, or improve code quality.
+description: Review code for design issues that static analysis misses. Checks single responsibility, abstraction levels, testability, and meaningful naming. Use when asked to review code, find design problems, or improve code quality.
 ---
 
 # Code Review
 
-Review code in the specified path for quality, security, and readability issues.
+Review code for design and architecture issues that linters and static analysis tools miss.
 
 ## User Input
 
@@ -21,10 +21,20 @@ Parse `$ARGUMENTS` for:
 - **Path**: Required path to review (file or directory)
 - **`--create-beads`**: Create beads for findings (default: report only)
 
+## Prerequisites
+
+This review assumes standard tooling is already running:
+- **Linters** (ESLint, golangci-lint, pylint) catch complexity, length, nesting, unused code
+- **Formatters** (prettier, gofmt, black) handle style
+- **Security scanners** (Semgrep, CodeQL, Bandit) catch injection, XSS, secrets
+- **Type checkers** (TypeScript, mypy) catch type errors
+
+If these aren't set up, recommend adding them before this review.
+
 ## Workflow
 
 1. Read/explore code in the specified path
-2. Evaluate against quality criteria below
+2. Evaluate against design criteria below (skip mechanical checks tools handle)
 3. Check for existing beads: `bd list --status=open`
 4. For each issue found, skip if a bead already exists with matching file/issue
 5. Create beads only for new critical/major issues
@@ -39,116 +49,71 @@ Before creating a bead, check if one already exists:
 
 ---
 
-## Quality Criteria
-
-### Function Size & Complexity
-
-| Smell | Threshold | Refactoring |
-|-------|-----------|-------------|
-| Long function | > 20 lines | Extract method per logical block |
-| Too many parameters | > 3 params | Parameter object or builder |
-| High cyclomatic complexity | > 10 paths | Split functions, use polymorphism |
-| Deep nesting | > 3 levels | Guard clauses, early returns, extract |
-| Mixed abstraction levels | High + low together | Extract low-level to helpers |
-| Flag arguments | Boolean changes behavior | Split into two functions |
+## Design Criteria
 
 ### Single Responsibility
 
 Flag when a unit has multiple unrelated reasons to change:
-- Functions that do X AND Y (validate AND save)
-- Classes with unrelated method groups
+- Functions that do X AND Y (validate AND save, fetch AND transform AND render)
+- Classes with unrelated method groups (UserService with email sending and caching)
 - Files with unrelated exports
+- Modules mixing infrastructure with business logic
 
-### Naming
+Ask: "If requirement X changes, does this code change? What about unrelated requirement Y?"
 
-| Element | Look For |
-|---------|----------|
-| Functions | Verbs: `calculateTotal` not `process` |
-| Booleans | Predicates: `isValid` not `flag` |
-| Variables | Intent: `userCount` not `n` |
-| Constants | Meaning: `MAX_RETRIES` not `THREE` |
+### Abstraction Levels
 
-Flag: generic names (`handle`, `data`, `tmp`), abbreviations, redundant context.
+Flag when a function mixes high-level intent with low-level details:
+- Business logic interleaved with HTTP/DB/file operations
+- Algorithm steps mixed with error handling boilerplate
+- Policy decisions embedded in mechanism code
 
-### Code Organization
+Good: each function operates at one level, delegating details to helpers.
 
-- Functions read top-to-bottom (high-level first, helpers below)
-- Related functions grouped together
-- Public API separated from implementation
-- One abstraction level per function
+### Meaningful Naming
 
-### Duplication
+Linters enforce patterns; this checks *meaning*:
+- Does `processData` actually explain what processing occurs?
+- Does `handleRequest` distinguish itself from other handlers?
+- Do similar names (`userService`, `userManager`, `userHelper`) have clear distinct roles?
+- Are abbreviations obvious to someone new to the codebase?
 
-| Type | Fix |
-|------|-----|
-| Identical blocks | Extract to shared function |
-| Same pattern, different data | Extract with parameters |
-| Same idea, different impl | Unify approach |
-
-Rule of three: refactor on third occurrence.
+Flag: names that pass linter rules but don't reveal intent.
 
 ### Testability
 
-Flag code that's hard to test:
-- Direct instantiation of external services (no injection)
-- Static/global state access
-- Business logic mixed with I/O
-- Hidden side effects
-- Large setup requirements
+Flag architectural decisions that make testing hard:
+- Direct instantiation of external services (no injection points)
+- Static/global state that persists between tests
+- Business logic that can only run with real I/O
+- Hidden side effects (function does more than signature suggests)
+- Circular dependencies between modules
 
----
+Ask: "Can I test this unit in isolation with fake dependencies?"
 
-## Concurrency
+### API Design
 
-| Issue | Severity |
-|-------|----------|
-| Shared mutable state without sync | Critical |
-| Inconsistent lock ordering | Critical |
-| Concurrent map/slice access (Go) | Critical |
-| Thread/goroutine leaks | Major |
-| Unbuffered channel blocking | Major |
+Flag interface issues:
+- Leaky abstractions (caller must understand implementation details)
+- Inconsistent patterns across similar APIs
+- Missing or misleading error information
+- Temporal coupling (must call A before B, but nothing enforces it)
 
----
+### Error Handling Strategy
 
-## Error Handling
-
-| Issue | Fix |
-|-------|-----|
-| `catch {}` or `_ = err` | Log, wrap, or propagate |
-| Ignored return values | Check all errors |
-| Stack traces in user errors | Sanitize messages |
-| `throw new Error("failed")` | Specific error types |
-
----
-
-## Resource Management
-
-| Issue | Fix |
-|-------|-----|
-| Unclosed files/connections | `defer`/`finally`/`with`/RAII |
-| Missing cleanup | Add in same scope as acquisition |
-| DB connections not returned | Use pooling with proper release |
-
----
-
-## Security
-
-| Issue | Severity |
-|-------|----------|
-| String concat in SQL/commands | Critical |
-| Unescaped output (XSS) | Critical |
-| Hardcoded secrets | Critical |
-| Missing input validation at boundaries | Major |
-| Unsanitized deserialization | Major |
-| Path traversal | Major |
+Linters catch empty catches; this checks *appropriateness*:
+- Are errors handled at the right level? (not swallowed too early, not leaked too far)
+- Do error messages help the *recipient* (user vs developer vs operator)?
+- Is the recovery strategy sensible? (retry? fail fast? degrade gracefully?)
+- Are error paths tested?
 
 ---
 
 ## Severity
 
-- **Critical** (P1): Security vulnerabilities, data corruption, race conditions
-- **Major** (P2): SRP violations, testability blockers, error handling gaps, functions > 50 lines
-- **Minor** (P3): Style issues, naming nitpicks, minor duplication
+- **Critical** (P1): Architectural issues blocking testability, security design flaws
+- **Major** (P2): SRP violations, mixed abstractions, leaky APIs
+- **Minor** (P3): Naming unclear but functional, minor API inconsistencies
 
 ---
 
@@ -160,9 +125,9 @@ For each issue: file:line, severity, specific problem, and concrete fix.
 
 | Severity | File:Line | Issue | Fix |
 |----------|-----------|-------|-----|
-| major | auth.go:142 | `processUser` is 87 lines, 5 nesting levels | Extract validation (145-160), transform (165-190), persist (195-220) |
-| major | user.ts:55 | Generic name `handle` | Rename: `createUserAccount` |
-| minor | config.go:12 | Magic number `86400` | Extract: `SECONDS_PER_DAY` |
+| major | auth.go:42 | `processUser` validates, transforms, AND persists | Extract to `validateUser`, `transformUser`, `saveUser` |
+| major | api/handler.ts:15 | HTTP parsing mixed with business logic | Move validation rules to domain layer |
+| minor | user.ts:55 | `handleUser` doesn't distinguish from other handlers | Rename: `createUserFromSignup` |
 
 **`--create-beads` mode**: Create beads for critical/major issues:
 ```bash

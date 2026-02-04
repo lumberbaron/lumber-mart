@@ -89,3 +89,47 @@ Documents Reviewed
 ---
 To create beads for these findings, re-run with --create-beads
 ```
+
+---
+
+## Wrong Formats (Do Not Use)
+
+The following formats are **WRONG**. Never produce output like this.
+
+### WRONG: Key-value pairs with horizontal lines
+
+```
+FR: FR-001
+Requirement: System shall authenticate users via email and password
+Status: ✅ PASS
+Evidence: src/auth/login.ts:28 - LoginService.authenticate() validates credentials
+────────────────────────────────────────
+FR: FR-002
+Requirement: System shall enforce password complexity
+Status: ⚠️ PARTIAL
+Evidence: src/auth/validation.ts:15 - passwordSchema uses zod regex
+────────────────────────────────────────
+```
+
+### WRONG: ASCII box-drawing tables
+
+```
+┌───────────────────────────────────────┬─────────┬────────────────────────────┐
+│              Principle                │ Status  │           Notes            │
+├───────────────────────────────────────┼─────────┼────────────────────────────┤
+│ I. All API endpoints must validate    │ ✅ PASS │ Zod schemas validate all   │
+├───────────────────────────────────────┼─────────┼────────────────────────────┤
+│ II. Secrets must never appear in logs │ ✅ PASS │ Audit logger redacts       │
+└───────────────────────────────────────┴─────────┴────────────────────────────┘
+```
+
+### CORRECT: Markdown pipe-delimited tables only
+
+```
+| FR | Requirement | Status | Evidence |
+|----|-------------|--------|----------|
+| FR-001 | System shall authenticate users via email and password | ✅ PASS | src/auth/login.ts:28 - LoginService.authenticate() validates credentials |
+| FR-002 | System shall enforce password complexity | ⚠️ PARTIAL | src/auth/validation.ts:15 - passwordSchema uses zod regex |
+```
+
+Use this format for ALL tabular data in the report.
