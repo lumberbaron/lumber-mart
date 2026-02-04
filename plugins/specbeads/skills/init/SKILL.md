@@ -1,5 +1,5 @@
 ---
-name: sb:init
+name: sb-init
 description: Initialize a git repository with spec-kit and beads configuration.
 disable-model-invocation: true
 ---

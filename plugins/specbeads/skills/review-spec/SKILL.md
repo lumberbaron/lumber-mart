@@ -1,11 +1,14 @@
 ---
-name: sb:review-spec
+name: sb-review-spec
 description: Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md). Use when asked to check spec conformance, validate implementation matches specs, or audit code against specifications.
 ---
 
 # Spec Review
 
 Validate that the implementation conforms to its spec-kit artifacts.
+
+> [!IMPORTANT]
+> Consult `REFERENCE.md` in this skill directory for the expected output format and level of detail.
 
 ## User Input
 
@@ -143,6 +146,7 @@ Documents Reviewed
 | FR-001 | <text from spec> | ✅ PASS | file.tf:42 - <explanation> |
 | FR-002 | <text from spec> | ⚠️ PARTIAL | file.ts:100 - <explanation> |
 | FR-003 | <text from spec> | ❌ GAP | Not implemented |
+
 
 ### Acceptance Criteria Coverage
 
