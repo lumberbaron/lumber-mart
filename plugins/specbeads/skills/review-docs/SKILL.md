@@ -82,6 +82,54 @@ Do **not** flag missing READMEs in nested subdirectories (e.g., `src/utils/`, `l
 
 Content Quality applies primarily to README prose. For CLAUDE.md, focus on accuracy (index entries point to real files) and consistency (uniform table format).
 
+### Hidden Knowledge
+
+Good docs surface things newcomers can't discover on their own. Flag when these are missing:
+
+**Prerequisites & Environment**:
+- System dependencies (e.g., "requires Docker 20+", "needs libssl-dev on Linux")
+- Required tool versions (node, python, go, etc.)
+- Required accounts or API keys (with signup links, not the keys themselves)
+- Environment variables with example values (use `YOUR_API_KEY` placeholders)
+
+**Platform Differences**:
+- OS-specific instructions when behavior differs (Mac vs Linux vs Windows)
+- Architecture notes if relevant (ARM vs x86)
+
+**Gotchas & Failure Modes**:
+- Common setup errors and fixes ("If you see X, run Y")
+- Non-obvious side effects ("This command also resets the database")
+- Known limitations or unsupported scenarios
+
+**Magic Values**:
+- Default ports, timeouts, limits that aren't obvious from code
+- Config file locations that vary by platform
+- Implicit ordering dependencies ("Run A before B")
+
+### Quick Start Quality
+
+The quick start should let someone succeed in minutes, not hours. Evaluate:
+
+**Copy-Pasteable Commands**:
+- Commands can be copied and run verbatim (no unexplained `<placeholders>`)
+- If placeholders are needed, explain how to get the real value
+- Shell-specific syntax noted if it matters (bash vs zsh vs fish)
+
+**Expected Output**:
+- Show what success looks like ("You should see: ...")
+- Include sample output for key commands
+- Note how to verify it worked
+
+**Minimal Path**:
+- Doesn't require reading other sections first
+- Optional features clearly marked as optional
+- "Hello world" possible before diving into configuration
+
+**First-Run Troubleshooting**:
+- Top 2-3 things that go wrong on first run
+- One-liner fixes for each
+- Link to more detailed troubleshooting if it exists
+
 ### CLAUDE.md Navigation Index
 
 CLAUDE.md files provide progressive disclosure via tabular indexes, pointing readers to the right file at the right time. README.md holds invisible knowledge (architecture, design decisions, invariants); CLAUDE.md holds navigation.
@@ -110,19 +158,35 @@ They should **not** contain architecture explanations, design decisions, invaria
 
 ## Checklist
 
+### Structure & Navigation
 - [ ] Root README has: purpose, overview, quick start
 - [ ] Root README links to component docs
 - [ ] Each major component root has a README (not nested subdirs)
-- [ ] No outdated references (paths, commands)
-- [ ] Code examples syntactically correct
-- [ ] Referenced files/commands exist
-- [ ] Consistent terminology
-- [ ] No duplicate information
 - [ ] Progressive disclosure maintained
 - [ ] Non-trivial directories have CLAUDE.md files
 - [ ] Each CLAUDE.md has a tabular index (`File`/`Directory`, `What`, `When to read`)
 - [ ] Subdirectory CLAUDE.md files contain only overview + index (no architecture prose)
 - [ ] CLAUDE.md indexes are in sync with actual directory contents (no drift)
+
+### Content Quality
+- [ ] No outdated references (paths, commands)
+- [ ] Code examples syntactically correct
+- [ ] Referenced files/commands exist
+- [ ] Consistent terminology
+- [ ] No duplicate information
+
+### Hidden Knowledge
+- [ ] Prerequisites documented (system deps, tool versions)
+- [ ] Required env vars listed with example values
+- [ ] Platform-specific instructions where behavior differs
+- [ ] Common errors and fixes documented
+- [ ] Magic values (ports, timeouts, defaults) explained
+
+### Quick Start
+- [ ] Commands are copy-pasteable (no unexplained placeholders)
+- [ ] Expected output shown for key steps
+- [ ] Minimal path to first success (no detours)
+- [ ] First-run troubleshooting for common failures
 
 ## Output
 
@@ -130,9 +194,9 @@ For each issue: note file, severity, brief explanation.
 
 **Severity guide**:
 - **P1** — Security-relevant: docs omit auth steps, expose secrets in examples, or give dangerous command examples
-- **P2** — Broken: code examples that error, paths/commands that don't exist, index entries pointing to missing files
-- **P3** — Stale or incomplete: outdated references, missing CLAUDE.md coverage, index drift
-- **P4** — Polish: formatting inconsistencies, verbose wording, missing "When to read" triggers
+- **P2** — Broken: code examples that error, paths/commands that don't exist, quick start fails on copy-paste, index entries pointing to missing files
+- **P3** — Stale or incomplete: outdated references, missing prerequisites, missing env var docs, missing CLAUDE.md coverage, index drift, no expected output shown
+- **P4** — Polish: formatting inconsistencies, verbose wording, missing "When to read" triggers, missing platform-specific notes
 
 **Default mode**: List issues in a table format without creating beads:
 | Type | Severity | File | Issue | Would Create |
