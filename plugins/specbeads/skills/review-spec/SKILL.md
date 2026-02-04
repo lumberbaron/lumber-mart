@@ -64,32 +64,44 @@ Build a working understanding of the implementation: files, modules, public APIs
 
 Run each applicable validation section below. Skip sections whose required documents are not present.
 
+**Status Definitions** (use consistently throughout):
+- ✅ PASS: Fully implemented as specified
+- ⚠️ PARTIAL: Implemented but with minor deviations from spec
+- ❌ GAP: Missing or significantly divergent
+
+**Evidence Format** (mandatory): `file:line - brief explanation`
+
 #### 4.1 Specification Conformance (requires spec.md)
 
-Compare the implementation against spec.md:
+Extract ALL functional requirements and acceptance criteria from spec.md. Create a table row for EACH item—do not summarize or skip any.
 
-- **Behavior coverage**: Are behaviors described in spec.md implemented in code?
-- **Edge case handling**: Are edge cases listed in the spec handled?
-- **Constraint enforcement**: Are constraints from the spec enforced (validation rules, limits, error conditions)?
-- **API surface**: Do public API signatures match spec descriptions (endpoints, function signatures, data shapes)?
+**Functional Requirements**: Scan spec.md for all FR-xxx identifiers or numbered requirements. For each:
+- Compare the implementation against the requirement
+- Evaluate: behavior coverage, edge case handling, constraint enforcement, API surface match
+- Record status and evidence
 
-For each gap, record the spec section and what is missing or divergent.
+**Acceptance Criteria**: Scan spec.md for all user stories (USx-x format) and their scenarios. For each scenario:
+- Verify the described behavior is implemented
+- Record status and notes
 
 #### 4.2 Architecture Consistency (requires plan.md)
 
-Compare the implementation against plan.md architectural decisions:
+Extract ALL architectural declarations from plan.md. This includes:
+- Module/package structure
+- Naming conventions
+- Technology choices (frameworks, libraries, databases)
+- Configuration patterns
+- External integrations
 
-- **Frameworks and libraries**: Does the code use the declared frameworks/libraries? (check imports, config files, dependency manifests)
-- **Directory structure**: Is code organized per the declared directory structure?
-- **External integrations**: Do external service integrations match the plan (client libraries, API patterns)?
-- **Data layer**: Does the data layer match (database driver, ORM, migration tool)?
-
-For each mismatch, record the plan.md declaration and the actual implementation.
+Create a table row for EACH declaration. Evaluate:
+- Does the code use the declared frameworks/libraries? (check imports, config files, dependency manifests)
+- Is code organized per the declared directory structure?
+- Do external service integrations match the plan?
+- Does the data layer match (database driver, ORM, migration tool)?
 
 #### 4.3 Constitution Alignment (requires constitution.md)
 
-For each principle declared in the project's constitution, evaluate whether the code in scope adheres to it:
-
+For EACH numbered principle in constitution.md, create a table row and evaluate whether the code adheres to it. Common principle categories:
 - API design standards
 - Security requirements
 - Infrastructure-as-code requirements
@@ -97,14 +109,6 @@ For each principle declared in the project's constitution, evaluate whether the 
 - Code organization conventions
 
 Only flag cases where code clearly contradicts a stated principle. Do not flag ambiguous or inapplicable cases.
-
-#### 4.4 Acceptance Criteria Coverage (requires spec.md + test files in scope)
-
-Check that acceptance criteria from spec.md are tested:
-
-- Does each user story / acceptance criterion have a corresponding test?
-- Are error scenarios from the spec tested?
-- Are boundary conditions from the spec tested?
 
 ### 5. Deduplication
 
@@ -114,17 +118,88 @@ Before creating beads, check for existing ones:
 - Compare findings against existing bead titles and descriptions
 - Skip creating beads for issues that already have matching open beads
 
-### 6. Output
+### 6. Report Format (Mandatory)
 
-For each finding: note the source document, the violated section/principle, the relevant code location, and a brief explanation.
+You MUST produce a report following this exact structure. This format is required for every review—do not deviate.
 
-**Default mode**: List findings in a table format without creating beads:
+```
+---
+Spec Review for specs/<feature-name>
 
-| Source | Section | Code Location | Issue | Would Create |
-|--------|---------|---------------|-------|--------------|
-| spec.md | US1 | src/auth.ts:42 | Description | `bd create --type=bug ...` |
+Documents Reviewed
+- spec.md: Yes
+- plan.md: Yes | Not found
+- constitution.md: Yes | Not found
 
-**`--create-beads` mode**: Create beads for findings:
+---
+## 4.1 Specification Conformance Analysis
+
+### Functional Requirements vs Implementation
+
+| FR | Requirement | Status | Evidence |
+|----|-------------|--------|----------|
+| FR-001 | <text from spec> | ✅ PASS | file.tf:42 - <explanation> |
+| FR-002 | <text from spec> | ⚠️ PARTIAL | file.ts:100 - <explanation> |
+| FR-003 | <text from spec> | ❌ GAP | Not implemented |
+
+### Acceptance Criteria Coverage
+
+| User Story | Scenario | Status | Notes |
+|------------|----------|--------|-------|
+| US1-1 | <scenario text> | ✅ | <notes> |
+| US1-2 | <scenario text> | ⚠️ | <notes> |
+
+---
+## 4.2 Architecture Consistency (plan.md)
+
+| Plan Declaration | Status | Evidence |
+|------------------|--------|----------|
+| <declaration> | ✅ | file:line - <explanation> |
+
+(Skip this section if plan.md not found)
+
+---
+## 4.3 Constitution Alignment
+
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| I. <Principle Name> | ✅ PASS | <explanation> |
+| II. <Principle Name> | ✅ PASS | <explanation> |
+
+(Skip this section if constitution.md not found)
+
+---
+## Summary
+
+| Category | Issues Found |
+|----------|--------------|
+| Specification conformance | N |
+| Architecture consistency | N |
+| Constitution alignment | N |
+| **Total** | **N** |
+
+(or "No issues found" if all items passed)
+
+---
+## Findings
+
+(Only include this section if there are issues)
+
+1. **FR-002 / US1-2**: <Short title>
+   <Prose explanation: what the spec requires, what the implementation does, why it's a gap/partial>
+
+2. **FR-014 / US3-3**: <Short title>
+   <Prose explanation>
+
+---
+To create beads for these findings, re-run with --create-beads
+```
+
+**Important**: The "Findings" section provides detailed prose explanations for each non-passing item. Reference the FR/US codes from the tables above for traceability.
+
+### 7. Bead Creation (`--create-beads` mode)
+
+When `--create-beads` is specified, create beads for each finding:
 
 ```bash
 bd create --type=bug --priority=<1-3> \
@@ -139,44 +214,17 @@ bd create --type=bug --priority=<1-3> \
 - Missing core behavior from spec: P1
 - Architecture divergence from plan: P2
 - Constitution violations: P2
-- Missing acceptance test coverage: P2
 
-### 7. Report Summary
-
-Output a summary:
+After creating beads, append to the report:
 
 ```
-Spec Review for specs/<feature>
-================================
-
-## Documents Reviewed
-
-- spec.md: Yes
-- plan.md: <Yes | Not found>
-- constitution.md: <Yes | Not found>
-
-## Findings
-
-| Category | Issues Found |
-|----------|-------------|
-| Specification conformance | <N> |
-| Architecture consistency | <N> |
-| Constitution alignment | <N> |
-| Acceptance criteria coverage | <N> |
-| **Total** | **<N>** |
-
 ## Beads Created
 
 - <bead-id>: "<title>"
 - ...
-
-(or "No issues found" if clean)
 ```
 
-In default (no `--create-beads`) mode, append:
-```
-To create beads for these findings, re-run with --create-beads
-```
+Omit the "To create beads..." footer when beads have been created.
 
 ## Error Handling
 
