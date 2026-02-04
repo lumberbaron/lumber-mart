@@ -72,20 +72,22 @@ Run each applicable validation section below. Skip sections whose required docum
 - ⚠️ PARTIAL: Implemented but with minor deviations from spec
 - ❌ GAP: Missing or significantly divergent
 
-**Evidence Format** (mandatory): `file:line - brief explanation`
+**Evidence Format**: `file:line` only (or `—` if no specific location). Detailed explanations go in Findings section.
+
+**Table Output**: Only show non-passing items (⚠️ PARTIAL and ❌ GAP). End each table with "N passed, not shown."
 
 #### 4.1 Specification Conformance (requires spec.md)
 
-Extract ALL functional requirements and acceptance criteria from spec.md. Create a table row for EACH item—do not summarize or skip any.
+Evaluate ALL functional requirements and acceptance criteria from spec.md.
 
 **Functional Requirements**: Scan spec.md for all FR-xxx identifiers or numbered requirements. For each:
 - Compare the implementation against the requirement
 - Evaluate: behavior coverage, edge case handling, constraint enforcement, API surface match
-- Record status and evidence
+- Record status and evidence for non-passing items
 
 **Acceptance Criteria**: Scan spec.md for all user stories (USx-x format) and their scenarios. For each scenario:
 - Verify the described behavior is implemented
-- Record status and notes
+- Record status and evidence for non-passing items
 
 #### 4.2 Architecture Consistency (requires plan.md)
 
@@ -96,7 +98,7 @@ Extract ALL architectural declarations from plan.md. This includes:
 - Configuration patterns
 - External integrations
 
-Create a table row for EACH declaration. Evaluate:
+Evaluate each declaration:
 - Does the code use the declared frameworks/libraries? (check imports, config files, dependency manifests)
 - Is code organized per the declared directory structure?
 - Do external service integrations match the plan?
@@ -126,9 +128,10 @@ Before creating beads, check for existing ones:
 You MUST produce a report following the exact structure shown in `REFERENCE.md`. This format is required for every review—do not deviate.
 
 Key rules:
-- Use markdown tables (pipe-delimited) for ALL tables—no ASCII box-drawing
-- Include every FR/US/principle from the spec documents—do not summarize or skip
-- Removed numbered items show "Removed" in the Requirement column with "—" for Status and Evidence
+- Only show non-passing items (⚠️ PARTIAL, ❌ GAP) in validation tables—end each with "N passed, not shown."
+- Evidence column is just `file:line` (or `—`)—detailed explanations go in Findings
+- Use H3 headers for Findings section (see REFERENCE.md for format)
+- No Summary table—Findings section already lists issues
 - Skip sections (4.2, 4.3) if their required documents are not present
 - Include Findings section only if there are non-passing items
 - End with "To create beads..." footer unless `--create-beads` was used
