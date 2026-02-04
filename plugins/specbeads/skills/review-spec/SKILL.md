@@ -123,87 +123,15 @@ Before creating beads, check for existing ones:
 
 ### 6. Report Format (Mandatory)
 
-You MUST produce a report following this exact structure. This format is required for every review—do not deviate.
+You MUST produce a report following the exact structure shown in `REFERENCE.md`. This format is required for every review—do not deviate.
 
-**Table Format**: Use markdown tables (pipe-delimited) for ALL tables. Do not use ASCII box-drawing characters or other formats.
-
-```
----
-Spec Review for specs/<feature-name>
-
-Documents Reviewed
-- spec.md: Yes
-- plan.md: Yes | Not found
-- constitution.md: Yes | Not found
-
----
-## 4.1 Specification Conformance Analysis
-
-### Functional Requirements vs Implementation
-
-| FR | Requirement | Status | Evidence |
-|----|-------------|--------|----------|
-| FR-001 | <text from spec> | ✅ PASS | file.tf:42 - <explanation> |
-| FR-002 | <text from spec> | ⚠️ PARTIAL | file.ts:100 - <explanation> |
-| FR-003 | <text from spec> | ❌ GAP | Not implemented |
-
-
-### Acceptance Criteria Coverage
-
-| User Story | Scenario | Status | Notes |
-|------------|----------|--------|-------|
-| US1-1 | <scenario text> | ✅ | <notes> |
-| US1-2 | <scenario text> | ⚠️ | <notes> |
-
----
-## 4.2 Architecture Consistency (plan.md)
-
-| Plan Declaration | Status | Evidence |
-|------------------|--------|----------|
-| <declaration> | ✅ | file:line - <explanation> |
-
-(Skip this section if plan.md not found)
-
----
-## 4.3 Constitution Alignment
-
-| Principle | Status | Notes |
-|-----------|--------|-------|
-| I. <Principle Name> | ✅ PASS | <explanation> |
-| II. <Principle Name> | ✅ PASS | <explanation> |
-
-(Skip this section if constitution.md not found)
-
----
-## Summary
-
-| Category | Issues Found |
-|----------|--------------|
-| Specification conformance | N |
-| Architecture consistency | N |
-| Constitution alignment | N |
-| **Total** | **N** |
-
-(or "No issues found" if all items passed)
-
----
-## Findings
-
-(Only include this section if there are issues. Insert a blank line between each finding for readability.)
-
-1. **FR-002 / US1-2**: <Short title>
-
-   <Prose explanation: what the spec requires, what the implementation does, why it's a gap/partial>
-
-2. **FR-014 / US3-3**: <Short title>
-
-   <Prose explanation>
-
----
-To create beads for these findings, re-run with --create-beads
-```
-
-**Important**: The "Findings" section provides detailed prose explanations for each non-passing item. Reference the FR/US codes from the tables above for traceability. Always include a blank line between findings.
+Key rules:
+- Use markdown tables (pipe-delimited) for ALL tables—no ASCII box-drawing
+- Include every FR/US/principle from the spec documents—do not summarize or skip
+- Removed numbered items show "Removed" in the Requirement column with "—" for Status and Evidence
+- Skip sections (4.2, 4.3) if their required documents are not present
+- Include Findings section only if there are non-passing items
+- End with "To create beads..." footer unless `--create-beads` was used
 
 ### 7. Bead Creation (`--create-beads` mode)
 
@@ -247,3 +175,4 @@ Omit the "To create beads..." footer when beads have been created.
 - **Gated sections**: Each validation section is gated on its required document being present
 - **Non-destructive**: Creates bug beads for findings, never modifies source code or spec artifacts
 - **Focused scope**: Validates spec conformance only — use `review-code`, `review-tests`, `review-docs` for generic quality
+- **Stable numbering**: When recommending removal of a numbered item (FR-xxx, USx-x, principles), never delete it. Mark it as "Removed" in place to preserve stable identifiers and avoid breaking cross-references

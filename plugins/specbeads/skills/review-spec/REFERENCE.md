@@ -28,6 +28,7 @@ Documents Reviewed
 | FR-004 | System shall support password reset via email with 24-hour token expiry | ❌ GAP | Token generation exists but expiry check not implemented |
 | FR-005 | System shall log all authentication events to audit trail | ✅ PASS | src/auth/audit.ts:12 - AuditLogger.logAuthEvent() called on login/logout/reset |
 | FR-006 | System shall support optional TOTP-based 2FA | ❌ GAP | No 2FA implementation found |
+| FR-007 | Removed | — | — |
 
 
 ### Acceptance Criteria Coverage
@@ -76,29 +77,14 @@ Documents Reviewed
 ---
 ## Findings
 
-1. **FR-003 / US1-3**: Login attempt threshold mismatch
-
-   Spec requires account lockout after 5 failed attempts, but implementation uses a hardcoded threshold of 3 in login.ts:45. This causes premature lockouts and doesn't match the documented behavior users expect.
-
-2. **FR-004 / US2-2**: Password reset token expiry not enforced
-
-   The spec requires 24-hour token expiry for password reset links. While tokens are generated with an expiry timestamp (reset.ts:31), the verification endpoint (reset.ts:58) only checks token validity, not expiration. Users can reset passwords with arbitrarily old tokens.
-
-3. **FR-006 / US3-1**: TOTP-based 2FA not implemented
-
-   Spec lists optional TOTP-based two-factor authentication as a requirement. No implementation exists - no database fields for TOTP secrets, no QR code generation, no verification endpoints. This is a complete feature gap.
-
-4. **Plan: OAuth providers incomplete**
-
-   Plan specifies Passport.js integration for Google, GitHub, and Microsoft OAuth. Only Google is implemented (src/auth/oauth/google.ts). GitHub and Microsoft strategy files are missing.
-
-5. **Plan: Rate limiting missing**
-
-   Plan requires express-rate-limit middleware at 100 requests/minute. No rate limiting middleware is configured in the Express app. This also violates Constitution principle IV.
-
-6. **Constitution IV**: Public endpoints unprotected
-
-   The /auth/login and /auth/reset endpoints are publicly accessible without rate limiting, making them vulnerable to brute force and credential stuffing attacks.
+| # | Ref | Title | Explanation |
+|---|-----|-------|-------------|
+| 1 | FR-003 / US1-3 | Login attempt threshold mismatch | Spec requires lockout after 5 failed attempts, but implementation uses hardcoded threshold of 3 in login.ts:45. Causes premature lockouts. |
+| 2 | FR-004 / US2-2 | Password reset token expiry not enforced | Spec requires 24-hour token expiry. Tokens generated with expiry (reset.ts:31) but verification (reset.ts:58) only checks validity, not expiration. |
+| 3 | FR-006 / US3-1 | TOTP-based 2FA not implemented | Spec lists optional TOTP 2FA as requirement. No implementation exists - no DB fields, no QR generation, no verification endpoints. |
+| 4 | Plan | OAuth providers incomplete | Plan specifies Passport.js for Google, GitHub, Microsoft. Only Google implemented. GitHub and Microsoft strategy files missing. |
+| 5 | Plan | Rate limiting missing | Plan requires express-rate-limit at 100 req/min. No rate limiting middleware configured. Also violates Constitution IV. |
+| 6 | Constitution IV | Public endpoints unprotected | /auth/login and /auth/reset accessible without rate limiting, vulnerable to brute force attacks. |
 
 ---
 To create beads for these findings, re-run with --create-beads
