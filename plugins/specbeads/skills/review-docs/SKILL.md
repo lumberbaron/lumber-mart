@@ -35,7 +35,7 @@ Parse `$ARGUMENTS` for:
 Before manual review, run the validation script for CLAUDE.md structural issues:
 
 ```bash
-python3 ~/.claude/plugins/specbeads/skills/review-docs/scripts/validate-claude-md.py $PATH --json
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-docs/scripts/validate-claude-md.py $0 --json
 ```
 
 Parse the JSON output and include structural issues (missing tables, missing references, index drift) in your findings. The script checks:
