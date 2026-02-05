@@ -152,12 +152,41 @@ CLAUDE.md files provide progressive disclosure via tabular indexes, pointing rea
 
 They should **not** contain architecture explanations, design decisions, invariants, or multi-paragraph prose. That content belongs in README.md.
 
-**Root CLAUDE.md is exempt** — The root CLAUDE.md may additionally contain operational sections (Build, Test, Lint commands), agent instruction sections (e.g., beads workflow, tool configuration), and other project-wide guidance. This is expected and should not be flagged.
+**Root CLAUDE.md operational sections** — The root CLAUDE.md may additionally contain operational sections (Build, Test, Lint commands), agent instruction sections (e.g., beads workflow, tool configuration), and other project-wide guidance. This is expected and should not be flagged.
+
+### CLAUDE.md Progressive Disclosure
+
+**Detail belongs where the code lives.** CLAUDE.md depth should match directory depth. The goal is to minimize context loading at each level — an AI working in `internal/cloud/aws/` should not need to read the entire root CLAUDE.md to understand that directory.
+
+The hierarchy works as follows:
+- **Root CLAUDE.md**: Navigation index + dev commands. Just enough to find where to go.
+- **Branch CLAUDE.md** (e.g., `internal/cloud/`): Architecture and patterns for that area + index to children.
+- **Leaf CLAUDE.md** (e.g., `internal/cloud/aws/`): Implementation specifics for that directory.
+
+**Anti-pattern**: A root CLAUDE.md that contains multi-paragraph explanations of how `internal/cloud/` works, what patterns `internal/broker/` uses, or how `test/` is structured. That detail should live in the respective subdirectory CLAUDE.md files, not the root.
+
+**What root CLAUDE.md should contain**:
+- Project overview (1-2 sentences)
+- Tabular navigation index pointing to major areas
+- Build/test/lint commands
+- Agent workflow instructions (if applicable)
+- Common gotchas (brief, not exhaustive)
+
+**What root CLAUDE.md should NOT contain**:
+- Multi-paragraph architecture explanations for subdirectories
+- Implementation patterns specific to a component
+- Detailed testing approaches (belongs in `test/CLAUDE.md`)
+- Provider-specific details (belongs in provider directories)
 
 **Index drift** — Flag when:
 - A file or subdirectory exists in the directory but is missing from the CLAUDE.md index (excluding dotfiles, generated artifacts, and files covered by glob patterns in the index)
 - An index entry references a file or directory that does not exist
 - A CLAUDE.md index links to a README that doesn't exist, or a README references a component whose CLAUDE.md is missing
+
+**Misplaced detail** — Flag when:
+- Root CLAUDE.md contains multi-paragraph explanations about subdirectory internals
+- Architectural detail about a component appears in the root instead of that component's CLAUDE.md
+- A branch directory lacks a CLAUDE.md but its detail is front-loaded in a parent CLAUDE.md
 
 ## Checklist
 
@@ -170,6 +199,8 @@ They should **not** contain architecture explanations, design decisions, invaria
 - [ ] Each CLAUDE.md has a tabular index (`File`/`Directory`, `What`, `When to read`)
 - [ ] Subdirectory CLAUDE.md files contain only overview + index (no architecture prose)
 - [ ] CLAUDE.md indexes are in sync with actual directory contents (no drift)
+- [ ] Root CLAUDE.md contains navigation + commands, not subdirectory architecture details
+- [ ] Detail lives where the code lives (no front-loading in parent CLAUDE.md files)
 
 ### Content Quality
 - [ ] No outdated references (paths, commands)
@@ -198,7 +229,7 @@ You MUST produce a report following the exact structure shown in `REFERENCE.md`.
 **Severity guide**:
 - **P1** — Security-relevant: docs omit auth steps, expose secrets in examples, or give dangerous command examples
 - **P2** — Broken: code examples that error, paths/commands that don't exist, quick start fails on copy-paste, index entries pointing to missing files
-- **P3** — Stale or incomplete: outdated references, missing prerequisites, missing env var docs, missing CLAUDE.md coverage, index drift, no expected output shown
+- **P3** — Stale or incomplete: outdated references, missing prerequisites, missing env var docs, missing CLAUDE.md coverage, index drift, no expected output shown, misplaced detail (architecture in root instead of subdirectory CLAUDE.md)
 - **P4** — Polish: formatting inconsistencies, verbose wording, missing "When to read" triggers, missing platform-specific notes
 
 **`--create-beads` mode**:
