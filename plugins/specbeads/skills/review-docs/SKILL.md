@@ -29,9 +29,10 @@ Parse `$ARGUMENTS` for:
 1. Run deterministic validation script for structural issues
 2. Find all README and CLAUDE.md files in scope
 3. Evaluate against quality criteria
-4. Check for existing beads: `bd list --status=open`
-5. For each issue found, skip if a bead already exists with matching file/issue
-6. Create beads only for new issues
+4. Cross-reference enumerations in docs against codebase sources of truth (see Enumeration Completeness)
+5. Check for existing beads: `bd list --status=open`
+6. For each issue found, skip if a bead already exists with matching file/issue
+7. Create beads only for new issues
 
 ### Deterministic Validation
 
@@ -79,11 +80,32 @@ Do **not** flag missing READMEs in nested subdirectories (e.g., `src/utils/`, `l
 
 - **Concise**: No unnecessary words or redundancy
 - **Clear**: Jargon explained, unambiguous
-- **Accurate**: Examples work, paths exist, commands valid
-- **Complete**: Prerequisites listed, all steps included
+- **Accurate**: Examples work, paths exist, commands valid, lists reflect what actually exists in code
+- **Complete**: Prerequisites listed, all steps included, enumerations cover all items (see Enumeration Completeness below)
 - **Consistent**: Uniform terminology and formatting
+- **Internally consistent**: Numbers, counts, and facts agree across all mentions within the same document
 
 Content Quality applies primarily to README prose. For CLAUDE.md, focus on accuracy (index entries point to real files) and consistency (uniform table format).
+
+### Enumeration Completeness
+
+When documentation contains a list of things — components, features, agents, services, environment variables, log files, database tables, API endpoints — verify the list is **complete and accurate** by cross-referencing the codebase.
+
+**Workflow**:
+1. Identify every enumeration in the docs (any list that claims to describe "all" or "the" items of a type)
+2. Find the canonical source in code (e.g., config directory for agents, env template for env vars, schema definitions for DB tables)
+3. Diff the two: items in code but missing from docs, items in docs but removed from code
+4. Flag gaps as P3 (stale or incomplete)
+
+**Common patterns to cross-reference**:
+- Agent/service/component lists → config files or directory listings
+- Feature/capability lists → tool, handler, or route files
+- Environment variable documentation → `.env.example`, `.env.template`, or equivalent
+- Log file lists → logging configuration entries
+- Database table/schema documentation → schema definition files or migrations
+- CLI command/Makefile target documentation → actual command definitions
+
+**What to skip**: Exhaustive enumeration is not always expected. Use judgement — a "Key features" section need not list every minor capability. But a section titled "Agents" or "Configuration" that presents itself as comprehensive should be complete.
 
 ### Hidden Knowledge
 
@@ -208,6 +230,12 @@ The hierarchy works as follows:
 - [ ] Referenced files/commands exist
 - [ ] Consistent terminology
 - [ ] No duplicate information
+- [ ] Numbers and facts consistent across all mentions within the same document
+
+### Codebase Consistency
+- [ ] Enumerations (agents, features, env vars, etc.) cross-referenced against code
+- [ ] No undocumented components in sections that present themselves as comprehensive
+- [ ] No documented items that no longer exist in code
 
 ### Hidden Knowledge
 - [ ] Prerequisites documented (system deps, tool versions)
@@ -229,7 +257,7 @@ You MUST produce a report following the exact structure shown in `REFERENCE.md`.
 **Severity guide**:
 - **P1** — Security-relevant: docs omit auth steps, expose secrets in examples, or give dangerous command examples
 - **P2** — Broken: code examples that error, paths/commands that don't exist, quick start fails on copy-paste, index entries pointing to missing files
-- **P3** — Stale or incomplete: outdated references, missing prerequisites, missing env var docs, missing CLAUDE.md coverage, index drift, no expected output shown, misplaced detail (architecture in root instead of subdirectory CLAUDE.md)
+- **P3** — Stale or incomplete: outdated references, missing prerequisites, missing env var docs, missing CLAUDE.md coverage, index drift, no expected output shown, misplaced detail (architecture in root instead of subdirectory CLAUDE.md), enumeration gaps (components/features/env vars in code but missing from docs), internal fact contradictions within the same document
 - **P4** — Polish: formatting inconsistencies, verbose wording, missing "When to read" triggers, missing platform-specific notes
 
 **`--create-beads` mode**:
