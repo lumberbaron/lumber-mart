@@ -10,6 +10,7 @@ Learn more about Claude Code marketplaces in the [official documentation](https:
 |--------|----------|-------------|
 | [circuits](plugins/circuits/) | Hardware | Skills and agents for microcontroller and hardware projects -- timing diagrams, PCB design, and datasheet extraction |
 | [specbeads](plugins/specbeads/) | Workflow | Specification-driven development with spec-kit and beads -- task tracking, sync, and automated code/docs/test/spec reviews |
+| [skill-creator](plugins/skill-creator/) | Workflow | Guidance and tooling for creating high-quality Claude Code skills with validation and best practices |
 
 ### [circuits](plugins/circuits/)
 
@@ -36,6 +37,14 @@ Integrates [spec-kit](https://github.com/spec-kit/specify) with [beads](https://
 | `specbeads:review-docs` | Command | Review documentation for completeness and accuracy |
 | `specbeads:review-tests` | Command | Review tests for coverage and quality issues |
 | `specbeads:review-spec` | Command | Validate implementation against spec-kit artifacts |
+
+### [skill-creator](plugins/skill-creator/)
+
+Guidance and tooling for creating high-quality Claude Code skills with validation and best practices.
+
+| Component | Type | Description |
+|-----------|------|-------------|
+| `creating-skills` | Skill | End-to-end guide for creating and refining Claude Code skills |
 
 ## Usage
 

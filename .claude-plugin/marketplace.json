@@ -20,6 +20,12 @@
       "source": "./plugins/specbeads",
       "category": "workflow",
       "keywords": ["spec-kit", "beads", "specifications", "task-tracking", "code-review"]
+    },
+    {
+      "name": "skill-creator",
+      "source": "./plugins/skill-creator",
+      "category": "workflow",
+      "keywords": ["skills", "skill-creation", "authoring", "best-practices", "validation"]
     }
   ]
 }
