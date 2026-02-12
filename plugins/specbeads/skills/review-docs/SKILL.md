@@ -46,6 +46,9 @@ Parse the JSON output and include structural issues (missing tables, missing ref
 - Presence of markdown tables with required columns
 - Whether referenced files/directories exist
 - Index drift (files not indexed, or index entries pointing to missing files)
+- `@path` import targets resolve to existing files
+- `.claude/rules/` file structure, frontmatter globs, and empty files
+- Leaked local preferences (hardcoded user paths, localhost URLs) in shared CLAUDE.md
 
 ### Deduplication
 
@@ -161,7 +164,7 @@ CLAUDE.md files provide progressive disclosure via tabular indexes, pointing rea
 
 > CLAUDE.md conventions inspired by solatis/claude-config (MIT).
 
-**Coverage** — Non-trivial directories should have a CLAUDE.md. Skip generated dirs, vendored deps, stubs (`.gitkeep` only), `.git`, `node_modules`, `__pycache__`, `dist`, `build`, and similar.
+**Coverage** — Non-trivial directories should have a CLAUDE.md. Skip generated dirs, vendored deps, stubs (`.gitkeep` only), `.git`, `node_modules`, `__pycache__`, `dist`, `build`, and similar. Also skip `CLAUDE.local.md` and `MEMORY.md` — these are personal/auto-managed and not part of shared project documentation.
 
 **Tabular index format** — Each CLAUDE.md must contain at least one markdown table with columns: `File` (or `Directory`), `What`, `When to read`. Entries should use:
 - Backtick-wrapped file/directory names (e.g., `` `src/` ``)
@@ -210,6 +213,56 @@ The hierarchy works as follows:
 - Architectural detail about a component appears in the root instead of that component's CLAUDE.md
 - A branch directory lacks a CLAUDE.md but its detail is front-loaded in a parent CLAUDE.md
 
+### CLAUDE.md Imports (`@path` Syntax)
+
+CLAUDE.md files can import other files using `@path/to/file` syntax. The skill validates these references:
+
+- Import target must exist (P2 if missing)
+- Relative paths resolve relative to the containing file's directory
+- Maximum 5 hops for recursive imports (A imports B imports C...); flag deeper chains as P3
+- Circular imports are P2
+- Imports inside fenced code blocks and inline code spans are not evaluated — do not flag them
+- Exclude email addresses (user@example.com), npm scopes (`@org/pkg`), and social handles (`@username`) from import checking
+
+### `.claude/rules/` Directory
+
+The `.claude/rules/` directory contains per-topic rule files that scope instructions to specific file paths. Do not flag an absent `.claude/rules/` directory — it is optional.
+
+- Each file should cover one topic (P4 if unfocused)
+- Filenames should be descriptive — flag generic names like `rules.md`, `misc.md` (P4)
+- `paths` frontmatter: P2 for invalid glob syntax, P3 for globs matching no files, P4 if universal rules are unnecessarily scoped to specific paths
+- Flag duplication between rules files and CLAUDE.md (P3)
+
+### Memory Location Awareness
+
+**`.claude/CLAUDE.md` alternative** — Both `./CLAUDE.md` and `./.claude/CLAUDE.md` are valid project instruction locations. Do not flag the choice of one over the other. Check both locations when reviewing.
+
+**`CLAUDE.local.md` (personal, not reviewed)** — `CLAUDE.local.md` contains personal preferences and is gitignored. Do not flag it as missing. Do not review its content. Flag personal/local preferences leaked into shared CLAUDE.md as P3 (hardcoded user home paths like `/Users/<name>/`, `/home/<name>/`, `C:\Users\<name>\`; personal sandbox URLs; machine-specific values).
+
+**`MEMORY.md` / auto memory (excluded)** — Files in `~/.claude/projects/<project>/memory/` including `MEMORY.md` are managed by Claude Code directly. The skill must:
+- Not suggest changes to MEMORY.md
+- Not flag it for any criteria
+- Not recommend creating or restructuring it
+- Skip it entirely during discovery
+
+### Instruction Specificity
+
+Instructions in CLAUDE.md and `.claude/rules/` should be specific and actionable. Flag vague directives as P4:
+- "follow best practices"
+- "write clean code"
+- "use appropriate naming"
+- "ensure quality"
+
+Do not flag intentionally high-level guidance that communicates a genuine design preference (e.g., "prefer composition over inheritance", "use dependency injection for external services").
+
+### Formatting Best Practices
+
+Instructions should be structured for fast scanning:
+- Instructions should use bullet points, not prose paragraphs (P4)
+- Related bullets should be grouped under descriptive headings — flag 10+ ungrouped consecutive items (P4)
+
+Applies to CLAUDE.md and `.claude/rules/` instruction content only. Does not apply to tabular indexes, README prose, or code block sections.
+
 ## Checklist
 
 ### Structure & Navigation
@@ -237,6 +290,17 @@ The hierarchy works as follows:
 - [ ] No undocumented components in sections that present themselves as comprehensive
 - [ ] No documented items that no longer exist in code
 
+### Memory Ecosystem
+- [ ] `@path` imports resolve to existing files
+- [ ] No import chains exceed 5 hops
+- [ ] `.claude/rules/` files focused and descriptively named
+- [ ] `paths` frontmatter valid and matching real files
+- [ ] No duplication between rules files and CLAUDE.md
+- [ ] No personal preferences leaked into shared CLAUDE.md
+- [ ] MEMORY.md excluded from review scope
+- [ ] Instructions specific and actionable
+- [ ] Instructions use bullets grouped under headings
+
 ### Hidden Knowledge
 - [ ] Prerequisites documented (system deps, tool versions)
 - [ ] Required env vars listed with example values
@@ -256,9 +320,9 @@ You MUST produce a report following the exact structure shown in `REFERENCE.md`.
 
 **Severity guide**:
 - **P1** — Security-relevant: docs omit auth steps, expose secrets in examples, or give dangerous command examples
-- **P2** — Broken: code examples that error, paths/commands that don't exist, quick start fails on copy-paste, index entries pointing to missing files
-- **P3** — Stale or incomplete: outdated references, missing prerequisites, missing env var docs, missing CLAUDE.md coverage, index drift, no expected output shown, misplaced detail (architecture in root instead of subdirectory CLAUDE.md), enumeration gaps (components/features/env vars in code but missing from docs), internal fact contradictions within the same document
-- **P4** — Polish: formatting inconsistencies, verbose wording, missing "When to read" triggers, missing platform-specific notes
+- **P2** — Broken: code examples that error, paths/commands that don't exist, quick start fails on copy-paste, index entries pointing to missing files, broken `@path` imports, circular imports, invalid glob syntax in rules frontmatter
+- **P3** — Stale or incomplete: outdated references, missing prerequisites, missing env var docs, missing CLAUDE.md coverage, index drift, no expected output shown, misplaced detail (architecture in root instead of subdirectory CLAUDE.md), enumeration gaps (components/features/env vars in code but missing from docs), internal fact contradictions within the same document, leaked local preferences in shared CLAUDE.md, orphan globs in rules frontmatter, duplication between rules files and CLAUDE.md, import chains exceeding 5 hops
+- **P4** — Polish: formatting inconsistencies, verbose wording, missing "When to read" triggers, missing platform-specific notes, vague instructions ("follow best practices"), generic rule filenames, ungrouped instruction lists, unnecessarily scoped universal rules
 
 **`--create-beads` mode**:
 

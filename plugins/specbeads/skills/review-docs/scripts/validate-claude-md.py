@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
-"""Validate CLAUDE.md files for structural correctness."""
+"""Validate CLAUDE.md files for structural correctness.
 
+Also validates @path imports, .claude/rules/ directory, and detects
+leaked local preferences in shared CLAUDE.md files.
+"""
+
+import fnmatch
 import subprocess
 import sys
 import re
@@ -96,6 +101,177 @@ def is_covered_by_indexed_children(name: str, indexed: set[str]) -> bool:
     return any(ref.startswith(prefix) for ref in indexed)
 
 
+def extract_imports(content: str, file_path: Path) -> list[dict]:
+    """Extract @path/to/file import references from content.
+
+    Skips references inside fenced code blocks, inline code spans,
+    email addresses, npm scopes (@org/pkg), and social handles (@username without /).
+    """
+    imports = []
+    lines = content.split('\n')
+    in_fence = False
+    parent_dir = file_path.parent
+
+    for line_num, line in enumerate(lines, 1):
+        # Track fenced code blocks
+        if re.match(r'^```', line):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+
+        # Remove inline code spans before scanning
+        stripped = re.sub(r'`[^`]+`', '', line)
+
+        # Find @path references
+        for m in re.finditer(r'@([\w./_~-][\w./_~-]*)', stripped):
+            ref = m.group(1)
+
+            # Skip email addresses: something@ref
+            start = m.start()
+            if start > 0 and stripped[start - 1] not in (' ', '\t', '\n', '(', '[', '"', "'", ',', ':'):
+                continue
+
+            # Skip npm scopes / social handles (no slash → likely @username)
+            if '/' not in ref and not ref.startswith(('.', '~')):
+                continue
+
+            # Resolve path
+            resolved = Path(ref).expanduser()
+            if not resolved.is_absolute():
+                resolved = parent_dir / resolved
+            resolved = resolved.resolve()
+
+            imports.append({
+                'path': ref,
+                'line_number': line_num,
+                'resolved_path': str(resolved),
+                'exists': resolved.exists(),
+            })
+
+    return imports
+
+
+def validate_imports(file_path: Path, content: str) -> list[dict]:
+    """Validate @path import targets exist. Returns P2 issues for missing targets."""
+    issues = []
+    for imp in extract_imports(content, file_path):
+        if not imp['exists']:
+            issues.append({
+                'type': 'broken_import',
+                'severity': 'P2',
+                'message': f"Import target does not exist: @{imp['path']} (line {imp['line_number']})",
+            })
+    return issues
+
+
+def validate_rules_directory(rules_dir: Path, git_root: Path | None) -> list[dict]:
+    """Validate .claude/rules/ directory structure and content."""
+    issues = []
+    if not rules_dir.is_dir():
+        return issues
+
+    for md_file in rules_dir.rglob('*.md'):
+        if is_gitignored(md_file, git_root):
+            continue
+
+        content = md_file.read_text()
+        rel = md_file.relative_to(rules_dir)
+
+        # P3: empty rule files
+        if not content.strip():
+            issues.append({
+                'type': 'empty_rule_file',
+                'severity': 'P3',
+                'message': f"Empty rule file: .claude/rules/{rel}",
+            })
+            continue
+
+        # Parse YAML frontmatter for paths field
+        fm_match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
+        if fm_match:
+            fm_text = fm_match.group(1)
+            paths_match = re.search(r'^paths:\s*\n((?:\s+-\s+.+\n?)+)', fm_text, re.MULTILINE)
+            if not paths_match:
+                # Try single-line: paths: ["glob"]
+                paths_match = re.search(r'^paths:\s*\[(.+)\]', fm_text, re.MULTILINE)
+                if paths_match:
+                    globs = [g.strip().strip('"').strip("'") for g in paths_match.group(1).split(',')]
+                else:
+                    globs = []
+            else:
+                globs = re.findall(r'-\s+["\']?([^"\']+?)["\']?\s*$', paths_match.group(1), re.MULTILINE)
+
+            for glob_pat in globs:
+                # P2: invalid glob syntax
+                try:
+                    fnmatch.translate(glob_pat)
+                except Exception:
+                    issues.append({
+                        'type': 'invalid_glob',
+                        'severity': 'P2',
+                        'message': f"Invalid glob syntax in .claude/rules/{rel}: {glob_pat}",
+                    })
+                    continue
+
+                # P3: glob matches no files
+                if git_root:
+                    matches = list(git_root.glob(glob_pat))
+                    if not matches:
+                        issues.append({
+                            'type': 'orphan_glob',
+                            'severity': 'P3',
+                            'message': f"Glob matches no files in .claude/rules/{rel}: {glob_pat}",
+                        })
+
+    return issues
+
+
+def check_leaked_local_preferences(content: str, file_path: Path) -> list[dict]:
+    """Detect personal/machine-specific values in shared CLAUDE.md files."""
+    # Only check shared CLAUDE.md, not CLAUDE.local.md
+    if file_path.name != 'CLAUDE.md':
+        return []
+
+    issues = []
+    patterns = [
+        (r'/Users/[a-zA-Z][\w.-]+/', 'macOS user home path'),
+        (r'/home/[a-zA-Z][\w.-]+/', 'Linux user home path'),
+        (r'C:\\Users\\[a-zA-Z][\w.-]+\\', 'Windows user home path'),
+    ]
+    localhost_pattern = r'localhost:\d+'
+
+    lines = content.split('\n')
+    in_fence = False
+
+    for line_num, line in enumerate(lines, 1):
+        if re.match(r'^```', line):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+
+        # Remove inline code spans
+        stripped = re.sub(r'`[^`]+`', '', line)
+
+        for pat, desc in patterns:
+            if re.search(pat, stripped):
+                issues.append({
+                    'type': 'leaked_local_preference',
+                    'severity': 'P3',
+                    'message': f"Hardcoded {desc} in shared CLAUDE.md (line {line_num}) — belongs in CLAUDE.local.md",
+                })
+
+        if re.search(localhost_pattern, stripped):
+            issues.append({
+                'type': 'leaked_local_preference',
+                'severity': 'P3',
+                'message': f"localhost URL in shared CLAUDE.md (line {line_num}) (may be developer-specific) — consider CLAUDE.local.md",
+            })
+
+    return issues
+
+
 def validate_claude_md(file_path: Path, git_root: Path | None) -> dict:
     """Validate a single CLAUDE.md file."""
     issues = []
@@ -143,7 +319,7 @@ def validate_claude_md(file_path: Path, git_root: Path | None) -> dict:
         indexed = {r.rstrip('/') for r in nav_refs}
 
         # Always skip these regardless of gitignore
-        always_skip = {'CLAUDE.md'}
+        always_skip = {'CLAUDE.md', 'CLAUDE.local.md', 'MEMORY.md'}
 
         # Lock files: committed to git but never useful for Claude to document
         lock_files = {
@@ -174,6 +350,12 @@ def validate_claude_md(file_path: Path, git_root: Path | None) -> dict:
                 "severity": "P3",
                 "message": f"Not indexed: {name}"
             })
+
+    # Validate @path imports
+    issues.extend(validate_imports(file_path, content))
+
+    # Check for leaked local preferences
+    issues.extend(check_leaked_local_preferences(content, file_path))
 
     return {
         "file": str(file_path),
@@ -217,6 +399,18 @@ def main():
             if is_gitignored(claude_md, git_root):
                 continue
             results.append(validate_claude_md(claude_md, git_root))
+
+    # Validate .claude/rules/ directory if it exists
+    rules_dir = (git_root or path) / '.claude' / 'rules'
+    rules_issues = validate_rules_directory(rules_dir, git_root)
+    if rules_issues:
+        results.append({
+            "file": str(rules_dir),
+            "exists": True,
+            "has_table": False,
+            "references": [],
+            "issues": rules_issues,
+        })
 
     if json_output:
         print(json.dumps(results, indent=2))

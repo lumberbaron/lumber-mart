@@ -10,7 +10,7 @@ This reference shows the expected format and level of detail for a documentation
 ---
 Documentation Review for .
 
-8 files reviewed, 5 issues found (1 P1, 1 P2, 2 P3, 1 P4).
+8 files reviewed, 7 issues found (1 P1, 2 P2, 3 P3, 1 P4).
 
 ### 1. [P1] Quick start seed command is destructive
 **Location:** README.md:45
@@ -36,6 +36,16 @@ After `docker compose up`, the reader has no way to verify success. Add a "You s
 **Location:** frontend/README.md:8
 
 The frontend README uses "Installation" in its heading but the root README links to it as "Setup". Standardize on "Setup" to match the root README's terminology.
+
+### 6. [P2] Broken import target in root CLAUDE.md
+**Location:** CLAUDE.md:14
+
+The import `@docs/setup-guide.md` points to a file that was renamed to `docs/getting-started.md` in commit abc1234. Any tool resolving this import will fail silently. Update the import path to `@docs/getting-started.md`.
+
+### 7. [P3] Personal sandbox URL in shared CLAUDE.md
+**Location:** CLAUDE.md:31
+
+The line `API_BASE=http://localhost:3001` appears to be a developer-specific sandbox URL. Other contributors may use a different port or remote endpoint. Move this to `CLAUDE.local.md` or replace with a placeholder like `http://localhost:<port>`.
 
 ---
 To create beads for these findings, re-run with --create-beads
