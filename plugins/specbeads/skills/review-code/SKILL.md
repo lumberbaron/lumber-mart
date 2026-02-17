@@ -38,16 +38,19 @@ If these aren't set up, recommend adding them before this review.
 
 1. Read/explore code in the specified path
 2. Evaluate against design criteria below (skip mechanical checks tools handle)
-3. Check for existing beads: `bd list --status=open`
-4. For each issue found, skip if a bead already exists with matching file/issue
-5. Create beads only for new P1/P2 issues
+3. Check for existing beads: `bd list --status=open` and `bd list --status=closed`
+4. For each issue found, skip if a bead already exists (open or closed) with matching file/issue
+5. For closed beads, check whether the current code **is the fix** — if so, do not re-raise
+6. Create beads only for new P1/P2 issues
 
 ### Deduplication
 
 Before creating a bead, check if one already exists:
 - Run `bd list --status=open` to see all open issues
+- Run `bd list --status=closed` to see previously resolved issues
 - Compare your findings against existing bead titles and descriptions
 - Skip creating beads for issues that already have matching open beads
+- **Skip findings where a closed bead's fix introduced the pattern you're flagging.** Use `bd show <id>` on relevant closed beads to read the description and close reason. If the current code is the intentional resolution of a prior bug, do not re-raise it.
 - When in doubt, show the user the potential duplicate rather than creating
 
 ---
