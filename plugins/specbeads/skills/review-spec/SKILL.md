@@ -1,5 +1,5 @@
 ---
-name: sb-review-spec
+name: review-spec
 description: Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md). Use when asked to check spec conformance, validate implementation matches specs, or audit code against specifications.
 ---
 

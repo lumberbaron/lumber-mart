@@ -1,5 +1,5 @@
 ---
-name: sb-review-code
+name: review-code
 description: Review code for design issues that static analysis misses. Checks single responsibility, abstraction levels, testability, and meaningful naming. Use when asked to review code, find design problems, or improve code quality.
 ---
 
