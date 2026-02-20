@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implement a spec-kit feature phase or standalone bug/task beads. Executes tasks one at a time, committing after each, with diff verification before closing. Use --all for multiple phases, --standalone [filter] for bug/task beads outside a feature plan.
+description: Implement a spec-kit feature phase. Executes tasks one at a time, committing after each, with diff verification before closing. Use --all to continue through subsequent phases. For standalone bug/task beads outside a feature plan, use /fix instead.
 ---
 
 ## User Input
@@ -15,65 +15,14 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Parse `$ARGUMENTS` for:
 - **Epic bead ID** (e.g., `sam-cp7l`): Implement that specific phase epic
-- **Standalone bead ID** (e.g., `sam-b3i`): Implement that specific bug or task bead (see Standalone Mode below)
 - **Feature slug** (e.g., `002-realtime-gateway`): Find and implement the next ready phase for that feature
-- **`--standalone [filter]`**: Implement ready standalone bug and task beads (see Standalone Mode below). Optional filter text after the flag narrows which beads are selected by matching against bead titles (case-insensitive substring). Example: `--standalone code bugs` selects only beads whose title contains "code"; `--standalone test` selects only test-related beads.
 - **`--all`**: Implement all currently unblocked phases sequentially, continuing after each completes
 - **`--dry-run`**: Show the execution plan without making any changes
-- **Additional instructions**: Any other text (not following `--standalone`) is treated as implementation guidance (constraints, approach hints, scope limits) applied throughout
+- **Additional instructions**: Any other text is treated as implementation guidance (constraints, approach hints, scope limits) applied throughout
 
 If no arguments: find the next ready phase — the first unblocked phase epic with open tasks — and implement it. If multiple feature slugs are present in the project, confirm with the user which feature to work on.
 
-## Standalone Mode
-
-Standalone mode handles bug and task beads that are not part of a spec-kit phase epic — for example, beads created by `review-code --create-beads`.
-
-### Resolving the bead list
-
-**Single bead ID given:**
-```bash
-bd show <bead-id>
-```
-Use that bead directly. Confirm it is type `bug` or `task`; if it is an `epic`, switch to phase mode.
-
-**`--standalone [filter]`:**
-```bash
-bd ready
-```
-Filter results to type `bug` or `task` (exclude epics and their subtasks). If a filter string was provided, further narrow to beads whose title contains the filter text (case-insensitive). Show the selected list to the user before proceeding.
-
-> [!CAUTION]
-> If no matching beads are ready, stop and report: "No standalone beads match. Run `bd ready` to check."
-
-### Executing standalone beads
-
-Process each selected bead sequentially — one at a time, in the order returned by `bd ready`.
-
-For each bead:
-
-1. `bd update <bead-id> --status=in_progress`
-2. `bd show <bead-id>` — read the full description
-3. **Synthesize a "Done when" clause if absent.** If the description does not contain a `Done when:` section, derive one from the description text and state it explicitly before coding:
-   - Identify the specific functions, files, or behaviours that must change
-   - Write a criterion that can be confirmed by reading the diff (e.g., "Both X and Y call shared helper Z; no duplicated logic remains in either")
-   - Show the synthesized criterion to the user
-4. **Implement the fix.** Stay within the files and functions named in the description.
-5. **Verify the "Done when" clause** — either the one from the description or the one synthesized in step 3:
-   - Run `git diff HEAD` and check that every file or function named in the description was actually changed
-   - If the description references a file that was not touched, stop and explain the gap before closing
-   - Run any tests cited in the description or relevant to the changed files
-6. **Commit:**
-   ```bash
-   git add <files changed>
-   git commit -m "fix: <bead title> [<bead-id>]
-
-   Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
-   ```
-7. `bd close <bead-id>`
-
-Repeat for the next bead. Do not bundle multiple beads into one commit.
-
----
+If a standalone bead ID (bug or task not part of a phase epic) is given, stop and tell the user to run `/fix <bead-id>` instead.
 
 ## Outline
 

@@ -8,7 +8,7 @@ This plugin bridges two tools:
 - **spec-kit**: Manages feature specifications, plans, and design artifacts
 - **beads**: Tracks work items (epics, tasks, bugs) with dependencies
 
-The plugin decomposes spec-kit design artifacts directly into beads for implementation tracking, plus provides review skills that create beads for issues found.
+The plugin converts spec-kit task lists into beads for implementation tracking, plus provides review skills that create beads for issues found.
 
 ## Prerequisites
 
@@ -24,27 +24,32 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 
 | Skill | Description | Model-Invocable |
 |-------|-------------|-----------------|
-| `/sb:init` | Initialize a repository with both spec-kit and beads | No (user-only) |
-| `/sb:beadify` | Decompose plan.md + spec.md into beads (epics for phases, tasks as children) | Yes |
-| `/sb:review-spec` | Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md) | Yes |
-| `/sb:review-code` | Review code for quality issues, create bug beads for findings | Yes |
-| `/sb:review-docs` | Review documentation for completeness and accuracy | Yes |
-| `/sb:review-tests` | Review tests for coverage and quality issues | Yes |
+| `/init` | Initialize a repository with both spec-kit and beads | No (user-only) |
+| `/beadify` | Convert tasks.md into beads (epics for phases, tasks as children) | Yes |
+| `/implement` | Implement a spec-kit feature phase, one task at a time with per-task commits | Yes |
+| `/fix` | Implement standalone bug/task beads (e.g. from review findings), one at a time | Yes |
+| `/review-spec` | Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md) | Yes |
+| `/review-code` | Review code for quality issues, create bug beads for findings | Yes |
+| `/review-docs` | Review documentation for completeness and accuracy | Yes |
+| `/review-tests` | Review tests for coverage and quality issues | Yes |
 
 ### Workflow
 
-1. **Initialize**: Run `/sb:init` to set up spec-kit and beads in your repo
+1. **Initialize**: Run `/init` to set up spec-kit and beads in your repo
 2. **Create specs**: Use spec-kit to create feature specs (spec.md, plan.md, data-model.md, contracts/)
-3. **Decompose into beads**: Run `/sb:beadify` to create phase epics and task beads directly from specs
-4. **Review the plan**: Beadify outputs a formatted implementation plan — refine by running beadify again with instructions
-5. **Work on tasks**: Use `bd ready` to see available work, `bd close` when done
-6. **Review quality**: Run review skills to find issues in code, tests, docs, or spec conformance
+3. **Generate tasks**: Run `/speckit.tasks` to decompose specs into tasks.md
+4. **Convert to beads**: Run `/beadify` to create phase epics and task beads from tasks.md
+5. **Implement**: Run `/implement` to work through phase tasks, or `/implement --all` to continue through all phases
+6. **Review quality**: Run review skills to find issues; use `--create-beads` to file findings as beads
+7. **Fix findings**: Run `/fix` to work through standalone beads created by review skills
 
 ### Natural Language Triggers
 
 Model-invocable skills can be triggered by natural language:
 
 - **beadify**: "generate beads for this feature", "convert this feature into beads", "create tasks from the spec", "decompose this into work items"
+- **implement**: "implement the next phase", "implement phase 2", "implement 002-realtime-gateway --all"
+- **fix**: "fix the review beads", "work through the code review findings", "fix sam-b3i"
 - **review-spec**: "check if code matches the spec", "validate implementation", "review spec conformance"
 - **review-code**: "review the code in api/", "check this code for bugs", "audit this module"
 - **review-docs**: "review the docs for this project", "check the documentation", "validate CLAUDE.md files"
@@ -53,33 +58,52 @@ Model-invocable skills can be triggered by natural language:
 ### Usage Examples
 
 ```
-/sb:init
-/sb:beadify 001-user-auth
-/sb:beadify --dry-run
-/sb:review-code src/auth/
-/sb:review-docs --create-beads
-/sb:review-tests tests/unit/
-/sb:review-spec 001-user-auth --create-beads
+/init
+/beadify 001-user-auth
+/beadify --dry-run
+/implement
+/implement 002-realtime-gateway --all
+/fix
+/fix sam-b3i
+/fix auth
+/review-code src/auth/
+/review-docs --create-beads
+/review-tests tests/unit/
+/review-spec 001-user-auth --create-beads
 ```
 
 All review skills support `--create-beads` to create beads for findings (default is report-only).
 
 ## Skill Options
 
-### specbeads:beadify
+### beadify
 
 - `[spec-folder]` - Specific spec folder (e.g., `001-user-auth`)
 - `--dry-run` - Preview implementation plan without creating beads
 - `--force` - Create beads even if duplicates detected
-- `<refinement instructions>` - When existing beads are detected, modify the decomposition (e.g., "split auth into its own phase")
 
-### specbeads:review-spec
+### implement
+
+- `[epic-bead-id]` - Specific phase epic to implement
+- `[feature-slug]` - Implement the next ready phase for that feature (e.g., `002-realtime-gateway`)
+- `--all` - Continue through all unblocked phases sequentially
+- `--dry-run` - Show the execution plan without making changes
+- `<additional instructions>` - Guidance applied to all tasks (constraints, approach hints)
+
+### fix
+
+- `[bead-id]` - Specific standalone bead to fix
+- `[filter]` - Work all ready standalone beads whose title contains the filter text
+- `--dry-run` - Show the matched bead list without making changes
+- `<additional instructions>` - Guidance applied throughout
+
+### review-spec
 
 - `[path]` - Path to focus the review (default: entire repo)
 - `[spec-folder]` - Specific spec folder (e.g., `001-user-auth`)
 - `--create-beads` - Create beads for findings (default: report only)
 
-### specbeads:review-code / review-docs / review-tests
+### review-code / review-docs / review-tests
 
 - `[path]` - Path to review (required for review-code and review-tests)
 - `--create-beads` - Create beads for findings (default: report only)
@@ -88,27 +112,3 @@ All review skills support `--create-beads` to create beads for findings (default
 
 - spec-kit: >= 1.0.0
 - beads: >= 1.0.0
-
-## Migration from v3.x
-
-v4.0.0 converts all commands to the skills format:
-
-| Change | Details |
-|--------|---------|
-| `commands/` → `skills/` | All command files moved to `skills/<name>/SKILL.md` format |
-| Model invocation | All skills except `init` are now model-invocable via natural language |
-| Validation script | `review-docs` now includes `scripts/validate-claude-md.py` for deterministic CLAUDE.md validation |
-
-The skill names and functionality remain the same. Invocation syntax is unchanged (`/sb:<skill-name>`).
-
-## Migration from v2.x
-
-v3.0.0 removed three commands and rewrote beadify:
-
-| Removed | Replacement |
-|---------|-------------|
-| `/sb:sync` | No longer needed — beads is the single source of truth. Use `bd list`, `bd ready`, `bd show` directly. |
-| `/sb:status` | No longer needed — use `bd ready`, `bd list --status=all`, or `bd stats` for progress. |
-| `/sb:setup-hooks` | Removed (was stashed in v2.x). |
-
-**beadify** no longer reads tasks.md. It now reads plan.md and spec.md directly, absorbing the task decomposition logic. Beads are the single source of truth for implementation work — there is no intermediate tasks.md file.
