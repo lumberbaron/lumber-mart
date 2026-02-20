@@ -54,8 +54,10 @@ Parse the JSON output and include structural issues (missing tables, missing ref
 
 Before creating a bead, check if one already exists:
 - Run `bd list --status=open` to see all open issues
+- Run `bd list --status=closed` to see previously resolved issues
 - Compare your findings against existing bead titles and descriptions
 - Skip creating beads for issues that already have matching open beads
+- **Skip findings where a closed bead's fix introduced the pattern you're flagging.** Use `bd show <id>` on relevant closed beads. If the current state is the intentional resolution of a prior issue, do not re-raise it.
 - When in doubt, show the user the potential duplicate rather than creating
 
 ## Quality Criteria
@@ -326,12 +328,42 @@ You MUST produce a report following the exact structure shown in `REFERENCE.md`.
 
 **`--create-beads` mode**:
 
+Each bead description MUST be structured in three parts:
+
+```
+<file:line (or just filename if no specific line)>
+
+<Explanation of the problem: what is wrong or missing and why it matters.>
+
+Fix: <Concrete prescription of exactly what to change or add.>
+
+Done when: <A verifiable criterion checkable by reading the file.
+For bugs: "The link at README.md:45 resolves to an existing file."
+For tasks: "The Quick Start section lists the minimum required Docker version
+with a link to the install page."
+NOT: "The docs are accurate.">
+```
+
 - Errors/inconsistencies → bug beads:
   ```bash
-  bd create --type=bug --priority=<1-3> --title="Docs: <issue>" --description="<file and explanation>"
+  bd create --type=bug --priority=<1-3> --title="Docs: <issue>" \
+    --description="<file:line>
+
+  <explanation>
+
+  Fix: <concrete prescription>
+
+  Done when: <verifiable criterion>"
   ```
 
 - Missing content → task beads:
   ```bash
-  bd create --type=task --priority=<2-4> --title="Docs: <what to add>" --description="<what's needed and why>"
+  bd create --type=task --priority=<2-4> --title="Docs: <what to add>" \
+    --description="<file>
+
+  <explanation>
+
+  Fix: <concrete prescription>
+
+  Done when: <verifiable criterion>"
   ```
