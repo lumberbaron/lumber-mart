@@ -127,7 +127,34 @@ Linters catch empty catches; this checks *appropriateness*:
 
 You MUST produce a report following the exact structure shown in `REFERENCE.md`.
 
-**`--create-beads` mode**: Create beads for P1/P2 issues:
+**`--create-beads` mode**: Create beads for P1/P2 issues.
+
+Each bead description MUST be structured in three parts:
+
+```
+<file:line>
+
+<Explanation of the problem: what is wrong and why it matters.>
+
+Fix: <Concrete prescription of the fix. For API design issues, specify the exact
+shape — parameter names, types, signatures — not just the general approach.
+Example: "Change `Skill(dir string, prefix ...string)` to `Skill(dir, prefix string)`
+where empty string means no prefix" rather than "remove the variadic.">
+
+Done when: <A verifiable completion criterion that can be checked by reading the diff.
+Must reference specific functions, files, or observable behaviours.
+Example: "Both parseSkillFrontmatter and parseAgentFrontmatter delegate to a shared
+parseFrontmatterRaw; no duplicated delimiter-scanning code remains in either function."
+NOT: "The duplication is removed.">
+```
+
 ```bash
-bd create --type=bug --priority=<1-3> --title="Code: <specific issue>" --description="<file:line, explanation, and suggested fix>"
+bd create --type=bug --priority=<1-3> --title="Code: <specific issue>" \
+  --description="<file:line>
+
+<explanation>
+
+Fix: <concrete prescription>
+
+Done when: <verifiable criterion>"
 ```
