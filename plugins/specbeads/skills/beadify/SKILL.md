@@ -29,7 +29,7 @@ Run prerequisite checks:
 ./.specify/scripts/bash/check-prerequisites.sh --json
 ```
 
-Parse the JSON response to get `FEATURE_DIR`.
+Parse the JSON response to get `FEATURE_DIR` (e.g., `specs/002-realtime-gateway`).
 
 Then verify beads is initialized:
 
@@ -43,13 +43,25 @@ bd info
 
 If a spec folder name was provided in arguments, override `FEATURE_DIR` to `specs/<folder-name>`.
 
+**Derive `FEATURE_SLUG`** from the last path component of `FEATURE_DIR`:
+- `specs/002-realtime-gateway` → `FEATURE_SLUG = 002-realtime-gateway`
+- `specs/001-user-auth` → `FEATURE_SLUG = 001-user-auth`
+
+Both `FEATURE_DIR` and `FEATURE_SLUG` are used throughout bead creation to anchor every bead to its feature. Never use bare filenames like `plan.md` in bead descriptions — always use the full path from repo root.
+
 ### 2. Load Context Documents
 
-Read from `FEATURE_DIR`:
-- **Required**: `plan.md` (tech stack, project structure), `spec.md` (user stories with priorities)
-- **Optional**: `data-model.md` (entities), `contracts/` (API schemas), `research.md` (decisions)
+Read from `FEATURE_DIR` and build a **doc index** of full paths from repo root:
 
-Note which optional documents are present — decomposition uses all available documents.
+| Key | Path | Required |
+|-----|------|----------|
+| `PLAN` | `{FEATURE_DIR}/plan.md` | Yes |
+| `SPEC` | `{FEATURE_DIR}/spec.md` | Yes |
+| `DATA_MODEL` | `{FEATURE_DIR}/data-model.md` | If present |
+| `CONTRACTS` | `{FEATURE_DIR}/contracts/` | If present |
+| `RESEARCH` | `{FEATURE_DIR}/research.md` | If present |
+
+Note which optional documents are present — decomposition uses all available documents. Use only these full paths when writing bead descriptions, never bare filenames.
 
 ### 3. Check for Existing Beads
 
@@ -125,6 +137,40 @@ bd create --type epic \
 - User Story phases: match user story priority from spec.md
 - Polish phase: P3
 
+#### Epic Description Format
+
+Every epic description MUST open with a feature header block, then a narrative body:
+
+```
+Feature: {FEATURE_SLUG}
+Plan: {FEATURE_DIR}/plan.md §<Exact phase section heading>
+Covers: {FEATURE_DIR}/spec.md §<User Story N — Title> [, §<User Story M — Title>]
+
+<2–4 sentences: what this phase achieves, why it exists in this order, and what is
+observable/true when the phase is complete. Name the key files or subsystems produced.>
+```
+
+Example:
+```
+Feature: 002-realtime-gateway
+Plan: specs/002-realtime-gateway/plan.md §Phase 1: Database Trigger + Notification Listener
+Covers: specs/002-realtime-gateway/spec.md §User Story 2 — Real-Time Catalog Notifications
+
+Creates the PostgreSQL trigger that fires on catalog table changes and the EC2 notification
+listener that receives those events and pushes them to connected WebSocket clients via
+post_to_connection(). Also includes the lightweight auth service JWT decoder needed by the
+REST gateway. Phase complete when catalog writes produce WebSocket notifications in the dev
+environment with mocked DynamoDB.
+```
+
+For phases that span multiple user stories (e.g., Foundational blocks all of them), list all covered stories in `Covers:`. For Setup phases with no direct user story, write `Covers: all stories (prerequisite)`.
+
+**Epic description quality rules**:
+
+1. **Full paths only**: All document references use `{FEATURE_DIR}/filename.md §Section` — never bare `plan.md` or `data-model.md`.
+2. **Observable completion**: The narrative must describe a concrete, verifiable end state — not just "implement X" but "what is true when this phase is done."
+3. **No implementation detail**: Epics describe the goal and scope; tasks describe the how. Epics should be readable in 10 seconds by someone doing triage.
+
 #### Task Beads (children of phase epics)
 
 For each task within a phase, create a task bead with the phase epic as parent:
@@ -139,20 +185,20 @@ bd create --type task \
 
 Each task bead:
 - **Title**: Actionable description (e.g., "Implement product search with multi-criteria filtering")
-- **Description**: Compose using the rules below. Must include: what to do, exact file path(s), user story reference, source spec reference, and a "Done when" clause.
+- **Description**: Compose using the rules below. Must include: what to do, exact file path(s), feature anchor, source spec reference, and a "Done when" clause.
 - **Priority**: Inherited from parent phase/story priority
 - No T### IDs (beads have native IDs)
 - No [P] markers (tasks without `bd dep` are implicitly parallel)
 
-**Description quality rules**:
+**Task description quality rules**:
 
-1. **Section-level references**: When referencing a document, always include the exact section heading — e.g., `data-model.md §Trigger Function` or `plan.md §Phase 1 step 3`. Never reference a document without a heading or step number.
+1. **Feature anchor + full paths**: Open every task description with `Feature: {FEATURE_SLUG}` on its own line, then use full repo-root paths for all document references — e.g., `specs/002-realtime-gateway/data-model.md §Trigger Function` or `specs/002-realtime-gateway/plan.md §Phase 2 step 1`. Never write bare `plan.md §...` or `data-model.md §...` — a fresh agent reading the bead in isolation must be able to open the right file immediately.
 
 2. **Shared-file scope boundary**: If two tasks in the same phase touch the same file, each description must include a sentence explicitly bounding its scope — e.g., *"This task writes the SQL migration file; task .2 wires it into the Lambda entrypoint."*
 
-3. **Inline over reference for short content**: Before adding a plan.md or spec.md reference, check whether the referenced content is substantively longer than the task description. If the plan step is ≤ 2 sentences and already captured in the description, omit the reference — it adds noise. Only include references when the target section has detail the implementor will genuinely need.
+3. **Inline over reference for short content**: Before adding a spec reference, check whether the referenced content is substantively longer than the task description. If the plan step is ≤ 2 sentences and already captured in the description, omit the reference — it adds noise. Only include references when the target section has detail the implementor will genuinely need.
 
-4. **Done when clause**: End every description with: `Done when: <specific verifiable outcome>` — e.g., *"Done when: trigger fires on INSERT to wine_cellar and the pg_notify payload matches data-model.md §Trigger Payload."*
+4. **Done when clause**: End every description with: `Done when: <specific verifiable outcome>` — e.g., *"Done when: trigger fires on INSERT to wine_cellar and the pg_notify payload matches specs/002-realtime-gateway/data-model.md §Trigger Payload."*
 
 5. **Cross-task handoff notes**: For tasks within a phase that are sequential (one task's output is another's input), add a handoff note to both descriptions. Upstream task: `Produces: <artifact path or name>`. Downstream task: `Consumes output of task .<N>: <artifact>`. Also wire `bd dep add` between them (see Step 6).
 
@@ -183,7 +229,7 @@ bd dep add <polish-id> <story-phase-id>
 - Foundational blocks all user story phases
 - User story phases can run in parallel after Foundational
 - Polish depends on all story phases
-- Within phases: set explicit deps where one task needs another's output (e.g., models before services). When you do, add cross-task handoff notes to both task descriptions (see Description quality rules above).
+- Within phases: set explicit deps where one task needs another's output (e.g., models before services). When you do, add cross-task handoff notes to both task descriptions (see Task description quality rules above).
 
 ### 7. Iterative Refinement
 
@@ -193,13 +239,16 @@ If existing phase epics are detected and the user provides refinement instructio
 2. Interpret `$ARGUMENTS` as a modification request (e.g., "split auth into its own phase", "add caching tasks to phase 2", "remove the polish phase")
 3. Output the updated implementation plan showing changes (additions, removals, moves)
 4. Apply changes: create new beads, update existing ones, set/remove dependencies as needed
+5. When updating existing bead descriptions, ensure the feature header block is present — add it if missing
 
 ### 8. Output Implementation Plan
 
 Every beadify invocation (including `--dry-run`) outputs a formatted implementation plan:
 
 ```
-Implementation Plan: <feature name>
+Implementation Plan: {FEATURE_SLUG}
+Spec: {FEATURE_DIR}/spec.md
+Plan: {FEATURE_DIR}/plan.md
 =====================================
 
 Phase 1: Setup (P1)
@@ -234,7 +283,7 @@ In `--dry-run` mode, only the plan is shown (no beads created).
 After the implementation plan, output a creation summary:
 
 ```
-Created beads from specs/<feature>:
+Created beads from {FEATURE_DIR}:
 
 Epics: N (Phase 1-N)
   - Phase 1: Setup → <bead-id>
@@ -252,6 +301,7 @@ Dependencies established:
 Next steps:
   - Run `bd ready` to see available work
   - Run `bd show <epic-id>` to see tasks in a phase
+  - Spec: {FEATURE_DIR}/spec.md | Plan: {FEATURE_DIR}/plan.md
 ```
 
 In `--dry-run` mode, prefix with:
@@ -285,6 +335,7 @@ If duplicates found:
 
 - **Spec-direct**: Reads plan.md and spec.md directly — no intermediate tasks.md file
 - **Beads-native**: Uses bead IDs, dependencies, and epic hierarchy natively
+- **Context-complete**: Every bead (epic or task) is self-contained — a fresh agent reading it with only `bd show <id>` has everything needed to find the feature, locate the design docs, and understand the scope. Feature slug and full spec paths are mandatory, not optional.
 - **Iterable**: Run once for initial decomposition, run again with instructions to refine
 - **Readable output**: Always produces a formatted implementation plan for human review
 - **Idempotent**: Duplicate detection prevents accidental double-creation (default)
