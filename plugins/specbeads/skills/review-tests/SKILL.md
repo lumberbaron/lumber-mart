@@ -36,8 +36,10 @@ Parse `$ARGUMENTS` for:
 
 Before creating a bead, check if one already exists:
 - Run `bd list --status=open` to see all open issues
+- Run `bd list --status=closed` to see previously resolved issues
 - Compare your findings against existing bead titles and descriptions
 - Skip creating beads for issues that already have matching open beads
+- **Skip findings where a closed bead's fix introduced the pattern you're flagging.** Use `bd show <id>` on relevant closed beads. If the current code is the intentional resolution of a prior bug, do not re-raise it.
 - When in doubt, show the user the potential duplicate rather than creating
 
 ## Quality Criteria
@@ -86,7 +88,47 @@ Before creating a bead, check if one already exists:
 
 You MUST produce a report following the exact structure shown in `REFERENCE.md`.
 
-**`--create-beads` mode**: Create beads for P1/P2 issues:
-```bash
-bd create --type=bug --priority=<1-3> --title="Test: <issue>" --description="<file and explanation>"
+**`--create-beads` mode**: Use `bug` for test quality failures; use `task` for missing coverage that needs to be added.
+
+Each bead description MUST be structured in three parts:
+
 ```
+<file:line>
+
+<Explanation of the problem: what is wrong or missing and why it matters.>
+
+Fix: <Concrete prescription. For quality bugs, specify exactly what must change
+(e.g., "replace the shared `db` package-level var with a per-test instance
+constructed in each test's setup"). For coverage tasks, specify exactly what
+scenario or assertion is missing (e.g., "add a test case where the input
+slice is nil; the current table has only empty-slice and non-empty cases").>
+
+Done when: <A verifiable criterion. Must be checkable by reading the test file.
+Example: "TestFoo has no package-level mutable state; all state is initialized
+inside t.Run or TestFoo itself."
+NOT: "The test is properly isolated.">
+```
+
+- Quality bugs (shared state, assertions that never fail, tests that mask bugs):
+  ```bash
+  bd create --type=bug --priority=<1-2> --title="Test: <issue>" \
+    --description="<file:line>
+
+  <explanation>
+
+  Fix: <concrete prescription>
+
+  Done when: <verifiable criterion>"
+  ```
+
+- Missing coverage (edge cases, error paths, boundary conditions):
+  ```bash
+  bd create --type=task --priority=<2-3> --title="Test: <what to add>" \
+    --description="<file:line>
+
+  <explanation>
+
+  Fix: <concrete prescription>
+
+  Done when: <verifiable criterion>"
+  ```

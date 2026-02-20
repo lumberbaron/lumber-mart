@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implement a spec-kit feature phase by reading its beads and executing tasks one at a time, committing after each. By default implements a single phase; use --all to continue through subsequent phases. Use when asked to implement a phase, work through tasks, or execute a feature plan.
+description: Implement a spec-kit feature phase. Executes tasks one at a time, committing after each, with diff verification before closing. Use --all to continue through subsequent phases. For standalone bug/task beads outside a feature plan, use /fix instead.
 ---
 
 ## User Input
@@ -21,6 +21,8 @@ Parse `$ARGUMENTS` for:
 - **Additional instructions**: Any other text is treated as implementation guidance (constraints, approach hints, scope limits) applied throughout
 
 If no arguments: find the next ready phase — the first unblocked phase epic with open tasks — and implement it. If multiple feature slugs are present in the project, confirm with the user which feature to work on.
+
+If a standalone bead ID (bug or task not part of a phase epic) is given, stop and tell the user to run `/fix <bead-id>` instead.
 
 ## Outline
 
@@ -111,7 +113,7 @@ Work through waves in order.
 2. `bd show <task-id>` — read the full description: feature anchor, full spec paths, exact files to touch, scope boundaries, cross-task handoff notes, and the "Done when" clause
 3. Read any spec sections explicitly cited that have detail beyond what the description captures
 4. **Implement the task.** Stay strictly within the stated file scope — if the description says "this task writes the migration; task .2 wires it in," do not wire it in
-5. **Verify the "Done when" clause.** Run whatever checks it specifies (tests, `terraform validate`, file existence, etc.). Fix failures before proceeding
+5. **Verify the "Done when" clause.** Run whatever checks it specifies (tests, `terraform validate`, file existence, etc.). Additionally, run `git diff HEAD` and confirm that every file or function explicitly named in the description was actually changed. If any named file was not touched, stop and explain the gap before closing the task. Fix failures before proceeding
 6. **Commit:**
    ```bash
    git add <files changed>
@@ -123,28 +125,43 @@ Work through waves in order.
 
 #### Multiple tasks in wave → spawn parallel subagents
 
-Use the Task tool — one subagent per task, running concurrently. Each subagent receives:
+Subagents keep implementation details out of the main context, which protects against compaction on large phases. Cap at **4 concurrent subagents** per batch — if a wave has more than 4 tasks, split into batches of 4 and run batches sequentially.
+
+**Before spawning**, extract the explicit file paths from each task's bead description (paths are always present per the beadify quality gate — look for tokens containing `/`). Build a path set per task and check for overlap. Any two tasks sharing a path must run sequentially: move the later task into a new wave after the earlier one completes. Do not rely on the `[P]` marker alone; verify by path inspection.
+
+Each subagent receives:
 - Full task description (verbatim from `bd show <task-id>`)
 - Feature slug and spec dir
 - Instruction to: mark in_progress → implement → verify done-when → commit → mark complete
 - Commit message format: `feat({FEATURE_SLUG}): <task title> [{task-id}]`
 - Any user-provided additional instructions from `$ARGUMENTS`
 
-Wait for all subagents in the wave to complete before starting the next wave. If any subagent reports failure, stop and surface the error — do not continue to dependent tasks.
-
-> [!CAUTION]
-> Verify no two tasks in the same wave edit the same file before spawning. If they do, treat them as sequential. The beadify scope boundary rule should have prevented this, but verify.
+Wait for all subagents in the batch to complete. If any subagent reports failure:
+1. Mark that bead back to `open`
+2. Stop immediately — do not start the next batch or wave
+3. Surface the failure and the subagent's output
+4. Do not close the epic
 
 ### 5. Phase Quality Gate
 
-After all tasks in the phase are complete:
+After all tasks in the phase are complete, detect which gates apply by inspecting changed files (`git diff --name-only HEAD~<N>` across the commits made in this phase), then run every applicable gate:
 
-| Phase type signals | Quality gate |
-|--------------------|--------------|
-| Python files changed | `uv run pytest` (subset relevant to this phase) |
-| Terraform files changed | `terraform validate` in the module directory |
-| Both | Run both |
+| Signal | Gate command |
+|--------|-------------|
+| `*.py` changed | `uv run pytest` (scoped to the relevant test module if possible) |
+| `*.go` changed | `go build ./...` and `go test ./...` |
+| `*.ts` / `*.tsx` / `*.js` / `*.jsx` changed | `npm test` (or `pnpm test` / `yarn test` — match the lockfile present) |
+| `*.java` / `*.kt` changed | `./mvnw test` or `./gradlew test` — whichever build file is present |
+| `*.rs` changed | `cargo test` |
+| `*.rb` changed | `bundle exec rspec` (or `bundle exec rake test` if no spec/ dir) |
+| `*.tf` / `*.tfvars` changed | `terraform validate` in the module directory |
+| `*.cs` changed | `dotnet test` |
+| `*.swift` changed | `swift test` |
+| `*.php` changed | `./vendor/bin/phpunit` |
+| Shell / config / docs only | No automated gate — done-when clauses are the verification |
 | Integration / hardening phase | Done-when clauses define their own verification |
+
+Run all applicable gates. If multiple apply (e.g., Go + Terraform), run both.
 
 If the quality gate fails:
 1. Report which check failed and the output
@@ -176,7 +193,7 @@ Tasks completed: X
   ✓ <task title> [<id>]   — <one-line summary of what was done>
   ...
 
-Quality gate: passed (uv run pytest: X passed / terraform validate: ok)
+Quality gate: passed (<gate>: <summary>, <gate>: <summary>)
 
 Committed and pushed.
 

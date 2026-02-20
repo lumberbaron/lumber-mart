@@ -120,8 +120,10 @@ Only flag cases where code clearly contradicts a stated principle. Do not flag a
 Before creating beads, check for existing ones:
 
 - Run `bd list --status=open` to see all open issues
+- Run `bd list --status=closed` to see previously resolved issues
 - Compare findings against existing bead titles and descriptions
 - Skip creating beads for issues that already have matching open beads
+- **Skip findings where a closed bead's fix introduced the pattern you're flagging.** Use `bd show <id>` on relevant closed beads. If the current state is the intentional resolution of a prior divergence, do not re-raise it.
 
 ### 6. Report Format (Mandatory)
 
@@ -138,15 +140,36 @@ Key rules:
 
 ### 7. Bead Creation (`--create-beads` mode)
 
-When `--create-beads` is specified, create beads for each finding:
+When `--create-beads` is specified, create beads for each finding.
+
+Each bead description MUST include all five fields:
+
+```
+**Source**: <spec.md|plan.md|constitution.md §section-heading>
+**Violated**: <exact quote or requirement identifier from the source document>
+**Code**: <file:line (or — if not yet implemented)>
+
+Fix: <Concrete prescription tied to the spec. Reference the specific section,
+requirement ID, or user story. Example: "Implement the rate-limit check from
+spec.md §FR-004: reject requests exceeding 100/min with HTTP 429 before
+the handler runs." Not: "Implement the missing requirement.">
+
+Done when: <Verifiable criterion. Must name observable code behaviour or a
+specific test. Example: "A request at 101/min receives HTTP 429; a test
+covers this scenario."
+NOT: "The spec requirement is satisfied.">
+```
 
 ```bash
 bd create --type=bug --priority=<1-3> \
   --title="Spec: <issue>" \
-  --description="**Source**: <spec.md|plan.md|constitution.md>
-**Violated**: <quote from source>
+  --description="**Source**: <spec.md|plan.md|constitution.md §section>
+**Violated**: <quote or requirement ID>
 **Code**: <file:line>
-<explanation>"
+
+Fix: <concrete prescription>
+
+Done when: <verifiable criterion>"
 ```
 
 **Priority mapping**:
