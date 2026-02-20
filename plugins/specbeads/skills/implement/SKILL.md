@@ -125,28 +125,43 @@ Work through waves in order.
 
 #### Multiple tasks in wave → spawn parallel subagents
 
-Use the Task tool — one subagent per task, running concurrently. Each subagent receives:
+Subagents keep implementation details out of the main context, which protects against compaction on large phases. Cap at **4 concurrent subagents** per batch — if a wave has more than 4 tasks, split into batches of 4 and run batches sequentially.
+
+**Before spawning**, extract the explicit file paths from each task's bead description (paths are always present per the beadify quality gate — look for tokens containing `/`). Build a path set per task and check for overlap. Any two tasks sharing a path must run sequentially: move the later task into a new wave after the earlier one completes. Do not rely on the `[P]` marker alone; verify by path inspection.
+
+Each subagent receives:
 - Full task description (verbatim from `bd show <task-id>`)
 - Feature slug and spec dir
 - Instruction to: mark in_progress → implement → verify done-when → commit → mark complete
 - Commit message format: `feat({FEATURE_SLUG}): <task title> [{task-id}]`
 - Any user-provided additional instructions from `$ARGUMENTS`
 
-Wait for all subagents in the wave to complete before starting the next wave. If any subagent reports failure, stop and surface the error — do not continue to dependent tasks.
-
-> [!CAUTION]
-> Verify no two tasks in the same wave edit the same file before spawning. If they do, treat them as sequential. The beadify scope boundary rule should have prevented this, but verify.
+Wait for all subagents in the batch to complete. If any subagent reports failure:
+1. Mark that bead back to `open`
+2. Stop immediately — do not start the next batch or wave
+3. Surface the failure and the subagent's output
+4. Do not close the epic
 
 ### 5. Phase Quality Gate
 
-After all tasks in the phase are complete:
+After all tasks in the phase are complete, detect which gates apply by inspecting changed files (`git diff --name-only HEAD~<N>` across the commits made in this phase), then run every applicable gate:
 
-| Phase type signals | Quality gate |
-|--------------------|--------------|
-| Python files changed | `uv run pytest` (subset relevant to this phase) |
-| Terraform files changed | `terraform validate` in the module directory |
-| Both | Run both |
+| Signal | Gate command |
+|--------|-------------|
+| `*.py` changed | `uv run pytest` (scoped to the relevant test module if possible) |
+| `*.go` changed | `go build ./...` and `go test ./...` |
+| `*.ts` / `*.tsx` / `*.js` / `*.jsx` changed | `npm test` (or `pnpm test` / `yarn test` — match the lockfile present) |
+| `*.java` / `*.kt` changed | `./mvnw test` or `./gradlew test` — whichever build file is present |
+| `*.rs` changed | `cargo test` |
+| `*.rb` changed | `bundle exec rspec` (or `bundle exec rake test` if no spec/ dir) |
+| `*.tf` / `*.tfvars` changed | `terraform validate` in the module directory |
+| `*.cs` changed | `dotnet test` |
+| `*.swift` changed | `swift test` |
+| `*.php` changed | `./vendor/bin/phpunit` |
+| Shell / config / docs only | No automated gate — done-when clauses are the verification |
 | Integration / hardening phase | Done-when clauses define their own verification |
+
+Run all applicable gates. If multiple apply (e.g., Go + Terraform), run both.
 
 If the quality gate fails:
 1. Report which check failed and the output
@@ -178,7 +193,7 @@ Tasks completed: X
   ✓ <task title> [<id>]   — <one-line summary of what was done>
   ...
 
-Quality gate: passed (uv run pytest: X passed / terraform validate: ok)
+Quality gate: passed (<gate>: <summary>, <gate>: <summary>)
 
 Committed and pushed.
 
