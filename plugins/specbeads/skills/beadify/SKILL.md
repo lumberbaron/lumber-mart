@@ -139,10 +139,22 @@ bd create --type task \
 
 Each task bead:
 - **Title**: Actionable description (e.g., "Implement product search with multi-criteria filtering")
-- **Description**: What to do, exact file path, user story reference, source spec reference
+- **Description**: Compose using the rules below. Must include: what to do, exact file path(s), user story reference, source spec reference, and a "Done when" clause.
 - **Priority**: Inherited from parent phase/story priority
 - No T### IDs (beads have native IDs)
 - No [P] markers (tasks without `bd dep` are implicitly parallel)
+
+**Description quality rules**:
+
+1. **Section-level references**: When referencing a document, always include the exact section heading — e.g., `data-model.md §Trigger Function` or `plan.md §Phase 1 step 3`. Never reference a document without a heading or step number.
+
+2. **Shared-file scope boundary**: If two tasks in the same phase touch the same file, each description must include a sentence explicitly bounding its scope — e.g., *"This task writes the SQL migration file; task .2 wires it into the Lambda entrypoint."*
+
+3. **Inline over reference for short content**: Before adding a plan.md or spec.md reference, check whether the referenced content is substantively longer than the task description. If the plan step is ≤ 2 sentences and already captured in the description, omit the reference — it adds noise. Only include references when the target section has detail the implementor will genuinely need.
+
+4. **Done when clause**: End every description with: `Done when: <specific verifiable outcome>` — e.g., *"Done when: trigger fires on INSERT to wine_cellar and the pg_notify payload matches data-model.md §Trigger Payload."*
+
+5. **Cross-task handoff notes**: For tasks within a phase that are sequential (one task's output is another's input), add a handoff note to both descriptions. Upstream task: `Produces: <artifact path or name>`. Downstream task: `Consumes output of task .<N>: <artifact>`. Also wire `bd dep add` between them (see Step 6).
 
 **Priority mapping for tasks**:
 - Tasks in Setup/Foundational phases: P1
@@ -171,7 +183,7 @@ bd dep add <polish-id> <story-phase-id>
 - Foundational blocks all user story phases
 - User story phases can run in parallel after Foundational
 - Polish depends on all story phases
-- Within phases: set explicit deps where one task needs another's output (e.g., models before services)
+- Within phases: set explicit deps where one task needs another's output (e.g., models before services). When you do, add cross-task handoff notes to both task descriptions (see Description quality rules above).
 
 ### 7. Iterative Refinement
 
