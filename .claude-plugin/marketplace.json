@@ -26,6 +26,12 @@
       "source": "./plugins/skill-creator",
       "category": "workflow",
       "keywords": ["skills", "skill-creation", "authoring", "best-practices", "validation"]
+    },
+    {
+      "name": "runbooks",
+      "source": "./plugins/runbooks",
+      "category": "workflow",
+      "keywords": ["runbooks", "operations", "deployment", "ops", "documentation", "procedures"]
     }
   ]
 }
