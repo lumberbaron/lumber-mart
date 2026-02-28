@@ -24,11 +24,11 @@ usage() {
   echo "  - Lowercase letters (a-z), digits (0-9), and hyphens (-) only"
   echo "  - No leading, trailing, or consecutive hyphens"
   echo "  - Maximum 64 characters"
-  echo "  - Gerund form recommended (e.g., creating-skills, reviewing-code)"
+  echo "  - Examples: create-skill, review-code, circuit-synth"
   echo ""
   echo "Examples:"
-  echo "  $(basename "$0") reviewing-code"
-  echo "  $(basename "$0") generating-reports /path/to/skills"
+  echo "  $(basename "$0") review-code"
+  echo "  $(basename "$0") create-report /path/to/skills"
 }
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then

@@ -4,27 +4,17 @@ Conventions for skill names, descriptions, and content writing.
 
 ## Naming Conventions
 
-### Recommended: Gerund Form
+### Good Names
 
-Gerund form (verb ending in -ing + noun) reads naturally as a capability:
+Pick a short, descriptive name that conveys what the skill does:
 
-- `creating-skills` — "Claude is creating skills"
-- `reviewing-code` — "Claude is reviewing code"
-- `generating-reports` — "Claude is generating reports"
-- `processing-invoices` — "Claude is processing invoices"
-
-### Acceptable Alternatives
-
-Verb-noun compounds work when they're established terms:
-
+- `create-skill` — verb-noun action
+- `review-code` — verb-noun action
 - `circuit-synth` — recognized shorthand
 - `pdf-editor` — clear tool identity
 - `datasheet` — single-domain noun
-
-Domain nouns are fine when the skill covers an entire domain without a dominant action:
-
-- `bigquery` — general BigQuery assistance
-- `kubernetes` — general Kubernetes assistance
+- `bigquery` — general domain assistance
+- `kubernetes` — general domain assistance
 
 ### Names to Avoid
 

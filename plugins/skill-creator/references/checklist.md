@@ -4,7 +4,7 @@ Run through this checklist before considering a skill complete.
 
 ## Metadata
 
-- [ ] `name` uses gerund form or has clear justification for alternative
+- [ ] `name` is short, descriptive, and conveys what the skill does
 - [ ] `name` is lowercase, hyphens and digits only, no leading/trailing/consecutive hyphens
 - [ ] `name` is 64 characters or fewer
 - [ ] `name` matches the directory name exactly

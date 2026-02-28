@@ -4,34 +4,48 @@ A plugin for creating high-quality Claude Code skills with built-in validation, 
 
 ## Overview
 
-The skill-creator plugin provides a comprehensive skill (`creating-skills`) that guides Claude through the full skill-creation workflow: understanding requirements, scaffolding directories, writing effective SKILL.md files, validating structure, and iterating with evaluation-driven development. It bundles reference material on naming conventions, quality patterns, evaluation strategies, and a final-review checklist.
+The skill-creator plugin provides two skills: `create-skill` for scaffolding and writing new skills end-to-end, and `review-skill` for auditing existing skills against best practices. Both skills share a common set of reference material covering naming conventions, quality patterns, evaluation strategies, and a final-review checklist.
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| `creating-skills` | End-to-end guide for creating and refining Claude Code skills |
+| `create-skill` | Scaffold and write a new Claude Code skill with proper structure and metadata |
+| `review-skill` | Review an existing skill for conformance to best practices |
 
-### creating-skills
+### create-skill
 
-Guides Claude through a 7-step workflow for creating skills:
+Guides Claude through a focused workflow for creating skills:
 
 1. Understand the skill with concrete examples
-2. Plan reusable contents (scripts, references, assets)
-3. Initialize the skill directory (`init-skill.sh`)
-4. Write the skill (metadata, body, scripts)
-5. Validate structure and metadata (`validate-skill.py`)
-6. Test and iterate with evaluation-driven development
-7. Final review against quality checklist
+2. Determine the target plugin and directory
+3. Generate a skill name
+4. Scaffold the directory (`init-skill.sh`)
+5. Plan reusable contents (scripts, references, assets)
+6. Research the codebase
+7. Write the skill (metadata, body, scripts)
+8. Validate structure and metadata (`validate-skill.py`)
+9. Register in the plugin CLAUDE.md
+10. Present for review
 
-**Bundled scripts:**
+### review-skill
+
+Reviews an existing skill against best practices:
+
+1. Locate the skill
+2. Run automated validation (`validate-skill.py`)
+3. Read the skill completely
+4. Assess against best practices
+5. Produce findings report (errors, warnings, suggestions)
+
+## Bundled Scripts
 
 | Script | Language | Purpose |
 |--------|----------|---------|
 | `init-skill.sh` | Bash | Scaffold a new skill directory with SKILL.md template |
 | `validate-skill.py` | Python 3 | Validate skill structure, metadata, and content quality |
 
-**Reference material:**
+## Shared References
 
 | Reference | Topic |
 |-----------|-------|

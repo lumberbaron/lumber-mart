@@ -45,7 +45,8 @@ Guidance and tooling for creating high-quality Claude Code skills with validatio
 
 | Component | Type | Description |
 |-----------|------|-------------|
-| `creating-skills` | Skill | End-to-end guide for creating and refining Claude Code skills |
+| `create-skill` | Skill | Scaffold and write a new Claude Code skill with proper structure and metadata |
+| `review-skill` | Skill | Review an existing skill for conformance to best practices |
 
 ### [runbooks](plugins/runbooks/)
 
