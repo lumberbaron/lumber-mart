@@ -1,5 +1,5 @@
 ---
-name: creating-runbook
+name: create-runbook
 description: Creates an operational runbook from a standard template with sections for prerequisites, procedure, verification, and troubleshooting, researching the codebase to fill in project-specific procedures. Use when asked to create a runbook, write operational docs, document a deployment process, or create step-by-step procedures for ops tasks.
 ---
 
@@ -41,7 +41,7 @@ Use imperative verb form. Keep it concise but descriptive.
 Run the init script to create the file from the template:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/creating-runbook/scripts/init-runbook.sh <runbook-name> <target-directory>
+bash ${CLAUDE_PLUGIN_ROOT}/skills/create-runbook/scripts/init-runbook.sh <runbook-name> <target-directory>
 ```
 
 This outputs JSON with `RUNBOOK_FILE` and `RUNBOOK_DIR` paths. Use `RUNBOOK_FILE` for all subsequent edits.
@@ -77,6 +77,29 @@ Edit the scaffolded file, replacing all template placeholders with project-speci
 
 Check if the runbook directory has an index file (e.g., `CLAUDE.md`, `README.md`, or `INDEX.md` in the runbook directory). If so, add an entry for the new runbook following the existing format.
 
-### Step 7: Present for review
+### Step 7: Register the runbook in the project CLAUDE.md
+
+> [!IMPORTANT]
+> This step is critical. Runbooks only get used if agents and developers know they exist. The project's root `CLAUDE.md` is the single source of truth that Claude Code always reads — if a runbook isn't listed there, it effectively doesn't exist.
+
+Read the project's root `CLAUDE.md`. Look for an existing `## Operational Runbooks` section.
+
+**If the section already exists**, add a new row to the table for the runbook you just created, following the existing format.
+
+**If the section does not exist**, append it to the end of `CLAUDE.md` using this format (substitute the actual runbook directory, filename, and a concise "when to use" description):
+
+```markdown
+## Operational Runbooks
+
+Runbooks live in `<runbook-dir>/`. Consult these before ad-hoc debugging — they have tested commands and troubleshooting steps.
+
+| Runbook | When to use |
+|---|---|
+| `<runbook-dir>/<runbook-name>.md` | <1-line description of when to reach for this runbook> |
+```
+
+The "When to use" column should describe the symptoms or situations that should trigger using the runbook — not just restate the title. Good example: "Debugging API errors, slow responses, auth failures, or investigating request patterns in CloudWatch". Bad example: "When you need to access API logs".
+
+### Step 8: Present for review
 
 Show the user the completed runbook and ask if any steps need adjustment. Highlight any areas where you had to make assumptions due to limited information.

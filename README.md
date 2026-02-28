@@ -11,6 +11,7 @@ Learn more about Claude Code marketplaces in the [official documentation](https:
 | [circuits](plugins/circuits/) | Hardware | Skills and agents for microcontroller and hardware projects -- timing diagrams, PCB design, and datasheet extraction |
 | [specbeads](plugins/specbeads/) | Workflow | Specification-driven development with spec-kit and beads -- task tracking, sync, and automated code/docs/test/spec reviews |
 | [skill-creator](plugins/skill-creator/) | Workflow | Guidance and tooling for creating high-quality Claude Code skills with validation and best practices |
+| [runbooks](plugins/runbooks/) | Workflow | Operational runbook creation with consistent structure and built-in maintenance feedback loops |
 
 ### [circuits](plugins/circuits/)
 
@@ -45,6 +46,14 @@ Guidance and tooling for creating high-quality Claude Code skills with validatio
 | Component | Type | Description |
 |-----------|------|-------------|
 | `creating-skills` | Skill | End-to-end guide for creating and refining Claude Code skills |
+
+### [runbooks](plugins/runbooks/)
+
+Operational runbook creation with consistent structure and built-in maintenance feedback loops.
+
+| Component | Type | Description |
+|-----------|------|-------------|
+| `create-runbook` | Skill | Create a new operational runbook from a standard template |
 
 ## Usage
 
