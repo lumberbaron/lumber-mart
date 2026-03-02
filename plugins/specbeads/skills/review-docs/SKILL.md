@@ -8,7 +8,7 @@ description: Review documentation (README.md and CLAUDE.md) for quality, complet
 Review documentation in the specified path (default: entire repository).
 
 > [!IMPORTANT]
-> Consult `REFERENCE.md` in this skill directory for the expected output format and level of detail.
+> Consult [REFERENCE.md](REFERENCE.md) for the expected output format and level of detail.
 
 ## User Input
 
@@ -318,7 +318,7 @@ Applies to CLAUDE.md and `.claude/rules/` instruction content only. Does not app
 
 ## Output
 
-You MUST produce a report following the exact structure shown in `REFERENCE.md`.
+You MUST produce a report following the exact structure shown in [REFERENCE.md](REFERENCE.md).
 
 **Severity guide**:
 - **P1** — Security-relevant: docs omit auth steps, expose secrets in examples, or give dangerous command examples
