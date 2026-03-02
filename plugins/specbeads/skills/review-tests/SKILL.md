@@ -8,7 +8,7 @@ description: Review tests for completeness, usefulness, isolation, and readabili
 Review tests in the specified path for quality issues.
 
 > [!IMPORTANT]
-> Consult `REFERENCE.md` in this skill directory for the expected output format and level of detail.
+> Consult [REFERENCE.md](REFERENCE.md) for the expected output format and level of detail.
 
 ## User Input
 
