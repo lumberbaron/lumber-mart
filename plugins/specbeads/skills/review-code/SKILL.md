@@ -36,14 +36,73 @@ If these aren't set up, recommend adding them before this review.
 
 ## Workflow
 
-1. Read/explore code in the specified path
-2. Evaluate against design criteria below (skip mechanical checks tools handle)
-3. Check for existing beads: `bd list --status=open` and `bd list --status=closed`
-4. For each issue found, skip if a bead already exists (open or closed) with matching file/issue
-5. For closed beads, check whether the current code **is the fix** — if so, do not re-raise
-6. Create beads only for new P1/P2 issues
+### Step 1 — Discover source files
 
-### Deduplication
+Find all source files in the specified path, excluding test files, vendored/generated code, and files that are purely configuration. Record the full file list and count.
+
+### Step 2 — Choose execution strategy
+
+- **1–2 files → Direct mode**: Read the files, evaluate against the Design Criteria below (skip mechanical checks tools handle), then proceed to Deduplication and Bead Check.
+- **3+ files → Parallel mode**: Batch files, spawn subagents, collect results, merge, then proceed to Deduplication and Bead Check.
+
+### Parallel Review Mode
+
+Use this mode when 3 or more source files are discovered.
+
+#### Batching
+
+Group files into batches based on total file count:
+
+| Total files | Files per batch | ~Subagents |
+|-------------|-----------------|------------|
+| 3–10        | 1               | 3–10       |
+| 11–20       | 2               | 6–10       |
+| 21+         | 3               | 7–10       |
+
+#### Spawn subagents
+
+For each batch, use `Agent(subagent_type="general-purpose")`. **Spawn all subagents in a single message** so they run in parallel.
+
+Each subagent prompt MUST include:
+
+1. The file paths in its batch (instruct the subagent to read them)
+2. The **Design Criteria** section from this skill — copy it verbatim into the prompt
+3. The **Severity** section from this skill — copy it verbatim into the prompt
+4. The **Prerequisites** note — remind the subagent to skip mechanical checks that linters/formatters/scanners handle
+5. The structured output format below
+6. The explicit instruction: **"Do NOT create beads, do NOT run `bd` commands. Return findings only."**
+
+Instruct each subagent to return findings in this exact delimited format (one block per finding):
+
+```
+---FINDING---
+priority: P<1|2|3>
+location: <file:line>
+title: <short title>
+category: <Single Responsibility|Abstraction Levels|Meaningful Naming|Testability|API Design|Error Handling Strategy>
+explanation: <what is wrong and why it matters>
+fix: <concrete prescription>
+done_when: <verifiable criterion>
+---END---
+```
+
+If the subagent finds no issues for its batch, it should return `---NO-FINDINGS---`.
+
+#### Collect and merge
+
+After all subagents return:
+
+1. Parse each subagent's structured findings
+2. Combine into a single list, sorted by priority (P1 first)
+3. Deduplicate: if two findings share the same `location` (file:line) AND the same `category`, keep only the one with the highest priority
+
+#### Error fallback
+
+If a subagent fails or returns unparseable output, review those files directly (as in direct mode) and include a note in the report: `Note: Files [list] were reviewed directly due to subagent failure.`
+
+### Deduplication and Bead Check
+
+Both direct mode and parallel mode flow into this step.
 
 Before creating a bead, check if one already exists:
 - Run `bd list --status=open` to see all open issues
@@ -125,7 +184,7 @@ Linters catch empty catches; this checks *appropriateness*:
 
 ## Output
 
-You MUST produce a report following the exact structure shown in `REFERENCE.md`.
+You MUST produce a report following the exact structure shown in `REFERENCE.md`. When using parallel mode, the lead assembles the unified report from subagent findings. The report format is identical regardless of execution mode.
 
 **`--create-beads` mode**: Create beads for P1/P2 issues.
 
