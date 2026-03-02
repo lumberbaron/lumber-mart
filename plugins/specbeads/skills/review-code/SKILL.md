@@ -1,6 +1,6 @@
 ---
 name: review-code
-description: Review code for design issues that static analysis misses. Checks single responsibility, abstraction levels, testability, and meaningful naming. Use when asked to review code, find design problems, or improve code quality.
+description: Reviews code for design issues that static analysis misses. Checks single responsibility, abstraction levels, testability, and meaningful naming. Use when asked to review code, find design problems, or improve code quality.
 ---
 
 # Code Review
@@ -8,7 +8,7 @@ description: Review code for design issues that static analysis misses. Checks s
 Review code for design and architecture issues that linters and static analysis tools miss.
 
 > [!IMPORTANT]
-> Consult `REFERENCE.md` in this skill directory for the expected output format and level of detail.
+> Consult [REFERENCE.md](REFERENCE.md) for the expected output format and level of detail.
 
 ## User Input
 
@@ -184,7 +184,7 @@ Linters catch empty catches; this checks *appropriateness*:
 
 ## Output
 
-You MUST produce a report following the exact structure shown in `REFERENCE.md`. When using parallel mode, the lead assembles the unified report from subagent findings. The report format is identical regardless of execution mode.
+You MUST produce a report following the exact structure shown in [REFERENCE.md](REFERENCE.md). When using parallel mode, the lead assembles the unified report from subagent findings. The report format is identical regardless of execution mode.
 
 **`--create-beads` mode**: Create beads for P1/P2 issues.
 
