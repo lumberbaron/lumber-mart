@@ -208,8 +208,10 @@ def validate_skill(skill_path):
             )
 
     # Check allowed frontmatter keys
-    allowed_keys = {"name", "description", "license", "allowed-tools", "metadata",
-                    "disable-model-invocation"}
+    allowed_keys = {
+        "name", "description", "argument-hint", "disable-model-invocation",
+        "user-invocable", "allowed-tools", "model", "context", "agent", "hooks",
+    }
     unexpected = set(frontmatter.keys()) - allowed_keys
     if unexpected:
         warnings.append(
