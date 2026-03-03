@@ -12,7 +12,7 @@ Run through this checklist before considering a skill complete.
 - [ ] `description` includes trigger phrases covering all major use cases
 - [ ] `description` is 80–1024 characters
 - [ ] `description` contains no angle brackets
-- [ ] No extra frontmatter fields beyond `name` and `description` (unless `license`, `allowed-tools`, or `metadata` are needed)
+- [ ] No extra frontmatter fields beyond `name` and `description` (unless `argument-hint`, `disable-model-invocation`, `user-invocable`, `allowed-tools`, `model`, `context`, `agent`, or `hooks` are needed)
 
 ## Structure
 
