@@ -59,7 +59,7 @@ Each subagent prompt MUST include:
 2. The **Quality Criteria** section from this skill — copy it verbatim into the prompt
 3. The **Severity** section from this skill — copy it verbatim into the prompt
 4. The structured output format below
-5. The explicit instruction: **"Do NOT create beads, do NOT run `bd` commands. Return findings only."**
+5. The explicit instruction: **"Do NOT use the Bash tool. Do NOT run any shell commands. Use only Read, Grep, and Glob tools. Do NOT create beads, do NOT run `bd` commands. Return findings only."**
 
 Instruct each subagent to return findings in this exact delimited format (one block per finding):
 
