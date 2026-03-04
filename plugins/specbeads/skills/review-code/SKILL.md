@@ -70,7 +70,7 @@ Each subagent prompt MUST include:
 3. The **Severity** section from this skill — copy it verbatim into the prompt
 4. The **Prerequisites** note — remind the subagent to skip mechanical checks that linters/formatters/scanners handle
 5. The structured output format below
-6. The explicit instruction: **"Do NOT create beads, do NOT run `bd` commands. Return findings only."**
+6. The explicit instruction: **"Do NOT use the Bash tool. Do NOT run any shell commands. Use only Read, Grep, and Glob tools. Do NOT create beads, do NOT run `bd` commands. Return findings only."**
 
 Instruct each subagent to return findings in this exact delimited format (one block per finding):
 
