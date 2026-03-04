@@ -71,6 +71,7 @@ Each subagent prompt MUST include:
 4. The **Prerequisites** note — remind the subagent to skip mechanical checks that linters/formatters/scanners handle
 5. The structured output format below
 6. The explicit instruction: **"Do NOT use the Bash tool. Do NOT run any shell commands. Use only Read, Grep, and Glob tools. Do NOT create beads, do NOT run `bd` commands. Return findings only."**
+7. The explicit instruction: **"For every P3 finding, you MUST state a concrete consequence in the `explanation` field: 'a caller/maintainer would likely \<specific mistake\> because of this.' Omit P3 findings that lack this claim."**
 
 Instruct each subagent to return findings in this exact delimited format (one block per finding):
 
@@ -178,7 +179,7 @@ Linters catch empty catches; this checks *appropriateness*:
 
 - **P1**: Architectural issues blocking testability, security design flaws
 - **P2**: SRP violations, mixed abstractions, leaky APIs
-- **P3**: Naming unclear but functional, minor API inconsistencies
+- **P3**: Naming or API issues where you can state a **concrete consequence** — i.e., "a caller/maintainer would likely \<specific mistake\> because of this." Do **not** raise P3 for names or patterns that are merely suboptimal without a realistic misuse or maintenance hazard.
 
 ---
 

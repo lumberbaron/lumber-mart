@@ -60,6 +60,7 @@ Each subagent prompt MUST include:
 3. The **Severity** section from this skill — copy it verbatim into the prompt
 4. The structured output format below
 5. The explicit instruction: **"Do NOT use the Bash tool. Do NOT run any shell commands. Use only Read, Grep, and Glob tools. Do NOT create beads, do NOT run `bd` commands. Return findings only."**
+6. The explicit instruction: **"For every P3 finding, you MUST state a concrete falsifiability claim in the `explanation` field: 'if \<specific code change\> were made, this test would incorrectly pass.' Omit P3 findings that lack this claim."**
 
 Instruct each subagent to return findings in this exact delimited format (one block per finding):
 
@@ -141,7 +142,7 @@ Before creating a bead, check if one already exists:
 
 - **P1**: Shared mutable state, tests that never fail, tests masking real bugs
 - **P2**: Missing assertions on return values, unclear test names, no isolation
-- **P3**: Missing edge cases, minor readability issues
+- **P3**: Missing edge cases or assertions where you can state a **concrete falsifiability claim** — i.e., "if \<specific code change\> were made, this test would incorrectly pass." Do **not** raise P3 for suggestions that only make a test more thorough without identifying a realistic false-pass scenario.
 
 ## Output
 
