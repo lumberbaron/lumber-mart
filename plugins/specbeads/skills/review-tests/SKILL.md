@@ -61,6 +61,7 @@ Each subagent prompt MUST include:
 4. The structured output format below
 5. The explicit instruction: **"Do NOT use the Bash tool. Do NOT run any shell commands. Use only Read, Grep, and Glob tools. Do NOT create beads, do NOT run `bd` commands. Return findings only."**
 6. The explicit instruction: **"For every P3 finding, you MUST state a concrete falsifiability claim in the `explanation` field: 'if \<specific code change\> were made, this test would incorrectly pass.' Omit P3 findings that lack this claim."**
+7. The explicit instruction: **"For the `pattern` field, use a short, reusable label that names the underlying anti-pattern (e.g., 'module-scope mutable mocks', 'tautological assertions'). If two findings in your batch stem from the same root cause, they MUST use the same pattern label."**
 
 Instruct each subagent to return findings in this exact delimited format (one block per finding):
 
@@ -70,6 +71,7 @@ priority: P<1|2|3>
 location: <file:line>
 title: <short title>
 category: <Completeness|Usefulness|Output Validation|Isolation|Readability|Integration Test Specifics>
+pattern: <short label for the underlying anti-pattern, e.g. "module-scope mutable mocks" or "tautological assertions" — use the SAME label across findings that share the same root cause>
 explanation: <what is wrong or missing and why it matters>
 fix: <concrete prescription>
 done_when: <verifiable criterion>
@@ -85,14 +87,31 @@ After all subagents return:
 1. Parse each subagent's structured findings
 2. Combine into a single list, sorted by priority (P1 first)
 3. Deduplicate: if two findings share the same `location` (file:line) AND the same `category`, keep only the one with the highest priority
+4. Group findings by `pattern` label — findings from different subagents that used the same (or very similar) pattern label share a root cause and will be collapsed in the Pattern Collapsing step
 
 #### Error fallback
 
 If a subagent fails or returns unparseable output, review those files directly (as in direct mode) and include a note in the report: `Note: Files [list] were reviewed directly due to subagent failure.`
 
-### Deduplication and Bead Check
+### Pattern Collapsing
 
-Both direct mode and parallel mode flow into this step.
+Both direct mode and parallel mode flow into this step before bead creation.
+
+After merging all findings, look for findings that share the **same root cause** — i.e., the same testing anti-pattern repeated across multiple test files. Examples:
+
+- Multiple test files flagged for "module-level mutable mock leaks between tests" → one pattern: "test suite uses module-scope mocks instead of per-test setup"
+- Multiple test files flagged for "globalThis.fetch replaced at module scope" → one pattern: "fetch mocking is done at import time instead of in beforeEach"
+- Multiple test files flagged for "assertions only check error status, not return values" → one pattern: "tests validate calls were made but not results returned"
+
+When you identify a shared root cause:
+
+1. **Collapse** the N per-file findings into **one finding** that names the pattern, lists all affected files, and prescribes the codebase-wide fix
+2. **Set severity** to the highest severity among the collapsed findings
+3. **Keep separate** any findings that happen to share a category but have genuinely different root causes
+
+This is critical: N beads for N instances of the same pattern creates noise. One bead that names the pattern and lists the affected locations is actionable.
+
+### Deduplication and Bead Check
 
 Before creating a bead, check if one already exists:
 - Run `bd list --status=open` to see all open issues
@@ -140,8 +159,8 @@ Before creating a bead, check if one already exists:
 
 ## Severity
 
-- **P1**: Shared mutable state, tests that never fail, tests masking real bugs
-- **P2**: Missing assertions on return values, unclear test names, no isolation
+- **P1**: Tests that **literally cannot fail** — tautological assertions (asserting against a freshly-created mock, asserting truthiness on a value that is always truthy), tests that mask real production bugs (e.g., simulating events differently than the browser does, hiding double-fires). **Shared mutable state is P1 only when it causes actual test interference** (tests fail or produce different results depending on run order). If the shared state is merely a code smell but tests still pass reliably in any order, that is P2.
+- **P2**: Shared mutable state that hasn't caused interference yet but is fragile, missing assertions on return values, unclear test names, no isolation
 - **P3**: Missing edge cases or assertions where you can state a **concrete falsifiability claim** — i.e., "if \<specific code change\> were made, this test would incorrectly pass." Do **not** raise P3 for suggestions that only make a test more thorough without identifying a realistic false-pass scenario.
 
 ## Output

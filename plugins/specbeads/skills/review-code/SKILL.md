@@ -72,6 +72,7 @@ Each subagent prompt MUST include:
 5. The structured output format below
 6. The explicit instruction: **"Do NOT use the Bash tool. Do NOT run any shell commands. Use only Read, Grep, and Glob tools. Do NOT create beads, do NOT run `bd` commands. Return findings only."**
 7. The explicit instruction: **"For every P3 finding, you MUST state a concrete consequence in the `explanation` field: 'a caller/maintainer would likely \<specific mistake\> because of this.' Omit P3 findings that lack this claim."**
+8. The explicit instruction: **"For the `pattern` field, use a short, reusable label that names the underlying anti-pattern (e.g., 'module-scope side effects', 'mixed abstraction in handlers'). If two findings in your batch stem from the same root cause, they MUST use the same pattern label."**
 
 Instruct each subagent to return findings in this exact delimited format (one block per finding):
 
@@ -81,6 +82,7 @@ priority: P<1|2|3>
 location: <file:line>
 title: <short title>
 category: <Single Responsibility|Abstraction Levels|Meaningful Naming|Testability|API Design|Error Handling Strategy>
+pattern: <short label for the underlying anti-pattern, e.g. "module-scope side effects" or "mixed abstraction in handlers" — use the SAME label across findings that share the same root cause>
 explanation: <what is wrong and why it matters>
 fix: <concrete prescription>
 done_when: <verifiable criterion>
@@ -96,14 +98,30 @@ After all subagents return:
 1. Parse each subagent's structured findings
 2. Combine into a single list, sorted by priority (P1 first)
 3. Deduplicate: if two findings share the same `location` (file:line) AND the same `category`, keep only the one with the highest priority
+4. Group findings by `pattern` label — findings from different subagents that used the same (or very similar) pattern label share a root cause and will be collapsed in the Pattern Collapsing step
 
 #### Error fallback
 
 If a subagent fails or returns unparseable output, review those files directly (as in direct mode) and include a note in the report: `Note: Files [list] were reviewed directly due to subagent failure.`
 
-### Deduplication and Bead Check
+### Pattern Collapsing
 
-Both direct mode and parallel mode flow into this step.
+Both direct mode and parallel mode flow into this step before bead creation.
+
+After merging all findings, look for findings that share the **same root cause** — i.e., the same design pattern repeated across multiple files. Examples:
+
+- Multiple files flagged for "module-level side effect blocks testability" → one pattern: "codebase initialises services at module scope instead of using injection"
+- Multiple files flagged for "mixed abstraction levels" where the same kind of mixing recurs → one pattern: "business logic is interleaved with infrastructure calls throughout"
+
+When you identify a shared root cause:
+
+1. **Collapse** the N per-file findings into **one finding** that names the pattern, lists all affected files, and prescribes the codebase-wide fix
+2. **Set severity** to the highest severity among the collapsed findings
+3. **Keep separate** any findings that happen to share a category but have genuinely different root causes
+
+This is critical: N beads for N instances of the same pattern creates noise. One bead that names the pattern and lists the affected locations is actionable.
+
+### Deduplication and Bead Check
 
 Before creating a bead, check if one already exists:
 - Run `bd list --status=open` to see all open issues
@@ -177,8 +195,8 @@ Linters catch empty catches; this checks *appropriateness*:
 
 ## Severity
 
-- **P1**: Architectural issues blocking testability, security design flaws
-- **P2**: SRP violations, mixed abstractions, leaky APIs
+- **P1**: Code that **cannot** be tested without heroic workarounds (no seam exists even with standard mocking), or security design flaws (authentication bypass, privilege escalation by design). A module-level singleton that can be mocked with `vi.mock()` or `monkey.Patch` is **not** P1 — that's testable, just inconvenient. P1 means "there is no way to isolate this code for testing" or "this design is a security vulnerability."
+- **P2**: SRP violations, mixed abstractions, leaky APIs, testability friction (module-level state, hard-coded dependencies that require mocking at import time)
 - **P3**: Naming or API issues where you can state a **concrete consequence** — i.e., "a caller/maintainer would likely \<specific mistake\> because of this." Do **not** raise P3 for names or patterns that are merely suboptimal without a realistic misuse or maintenance hazard.
 
 ---
