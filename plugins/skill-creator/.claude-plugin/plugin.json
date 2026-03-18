@@ -1,8 +1,0 @@
-{
-  "name": "skill-creator",
-  "description": "Skills for creating high-quality Claude Code skills with validation and best practices.",
-  "version": "2.0.1",
-  "author": {
-    "name": "lumberbarons"
-  }
-}
