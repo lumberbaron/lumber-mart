@@ -15,11 +15,14 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Parse `$ARGUMENTS` for:
 - **Bead ID** (e.g., `sam-b3i`): Fix that specific bead
-- **Filter text** (e.g., `auth`, `code review`): Work all ready standalone beads whose title contains the filter (case-insensitive substring). Show the matched list before proceeding.
+- **Type keyword** (`bugs` or `tasks`): Work only beads of that type. `bugs` → `--type bug`, `tasks` → `--type task`. If omitted, work both types.
+- **Filter text** (e.g., `auth`, `code review`): Work all matching standalone beads whose title contains the filter (case-insensitive substring). Show the matched list before proceeding.
 - **`--dry-run`**: Show the list of beads that would be worked without making any changes
 - **Additional instructions**: Any other text is treated as implementation guidance applied throughout
 
-If no arguments: work all ready standalone bug and task beads (equivalent to no filter).
+Type keywords and filter text can be combined (e.g., `/fix bugs auth` → only bug beads whose title contains "auth").
+
+If no arguments: work all standalone bug and task beads that are open or in-progress.
 
 If an epic bead ID is given, stop and tell the user to run `/implement <epic-id>` instead.
 
@@ -32,19 +35,21 @@ bd show <bead-id>
 Confirm it is type `bug` or `task`. If it is an `epic`, stop and redirect to `/implement`.
 
 **Filter or no argument:**
-```bash
-bd ready
-```
-Filter results to type `bug` or `task` only (exclude epics and their child tasks, which belong to a phase). If filter text was provided, further narrow to beads whose title contains it. Show the matched list to the user before proceeding.
+
+Build the `bd list` command based on parsed arguments:
+- If a type keyword was given: `bd list --type <bug|task>`
+- If no type keyword: run both `bd list --type bug` and `bd list --type task`
+
+Exclude epics and their child tasks (which belong to a phase). If filter text was provided, further narrow to beads whose title contains it. Show the matched list to the user before proceeding.
 
 > [!CAUTION]
-> If no matching beads are ready, stop and report: "No standalone beads match. Run `bd ready` to check."
+> If no matching beads are found, stop and report: "No standalone beads match. Run `bd list` to check."
 
 Stop here in `--dry-run` mode, after showing the matched list.
 
 ## Execution
 
-Process each bead sequentially — one at a time, in the order returned by `bd ready`. Do not bundle multiple beads into one commit.
+Process each bead sequentially — one at a time, in the order returned by `bd list`. Do not bundle multiple beads into one commit.
 
 For each bead:
 
@@ -113,7 +118,7 @@ Fixed N beads:
 Skipped: 0
 New blocking beads filed: 0
 
-Run `bd ready` to check for remaining work.
+Run `bd list` to check for remaining work.
 ```
 
 ## Design Principles
