@@ -128,7 +128,7 @@ Before creating a bead, check if one already exists:
 - Run `bd list --status=closed` to see previously resolved issues
 - Compare your findings against existing bead titles and descriptions
 - Skip creating beads for issues that already have matching open beads
-- **Skip findings where a closed bead's fix introduced the pattern you're flagging.** Use `bd show <id>` on relevant closed beads to read the description and close reason. If the current code is the intentional resolution of a prior bug, do not re-raise it.
+- **Check closed beads before suppressing.** Use `bd show <id>` on relevant closed beads and verify the fix actually resolved the issue in the current code. Only suppress if the fix is complete — if the problem still exists (in the same or different locations), create a new bead for the remaining instances. The goal is to prevent flip-flopping on intentional resolutions, not to give closed beads permanent immunity.
 - When in doubt, show the user the potential duplicate rather than creating
 
 ---
