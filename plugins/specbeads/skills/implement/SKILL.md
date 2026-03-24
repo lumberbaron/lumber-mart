@@ -112,7 +112,24 @@ Work through waves in order.
 1. `bd update <task-id> --status=in_progress`
 2. `bd show <task-id>` — read the full description: feature anchor, full spec paths, exact files to touch, scope boundaries, cross-task handoff notes, and the "Done when" clause
 3. Read any spec sections explicitly cited that have detail beyond what the description captures
-4. **Implement the task.** Stay strictly within the stated file scope — if the description says "this task writes the migration; task .2 wires it in," do not wire it in
+4. **Implement the task using TDD when applicable.** Stay strictly within the stated file scope — if the description says "this task writes the migration; task .2 wires it in," do not wire it in
+
+   **TDD applies** when the task produces code that can be meaningfully unit- or integration-tested (application logic, library functions, API handlers, data transforms, etc.).
+
+   **TDD does not apply** to pure configuration, migrations, documentation, static assets, CI/CD manifests, or boilerplate wiring with no branching logic.
+
+   When TDD applies, follow Red-Green-Refactor:
+   1. **Red** — Write a failing test (or tests) that express the "Done when" clause and the task's expected behavior. Tests must:
+      - Assert on actual return values and state, not just "no error thrown"
+      - Test behavior, not implementation details — if you refactored internals without changing behavior, the test should still pass
+      - Use meaningful expected values, not arbitrary placeholders
+      - Cover at least the happy path and one error/edge case
+      - Have clear, descriptive names that communicate the scenario being verified (e.g., `TestCheckout_AppliesVolumeDiscount`, not `TestCheckout2`)
+      - Follow arrange-act-assert structure with no shared mutable state between test cases
+
+      Run the test suite to confirm the new tests fail for the right reason (missing implementation, not import errors or syntax mistakes). Fix any scaffolding issues until the tests fail because the feature is absent
+   2. **Green** — Write the minimal implementation to make all tests pass
+   3. **Refactor** — Clean up the implementation while keeping tests green. Do not gold-plate — stay within scope
 5. **Verify the "Done when" clause.** Run whatever checks it specifies (tests, `terraform validate`, file existence, etc.). Additionally, run `git diff HEAD` and confirm that every file or function explicitly named in the description was actually changed. If any named file was not touched, stop and explain the gap before closing the task. Fix failures before proceeding
 6. **Commit:**
    ```bash
@@ -132,7 +149,8 @@ Subagents keep implementation details out of the main context, which protects ag
 Each subagent receives:
 - Full task description (verbatim from `bd show <task-id>`)
 - Feature slug and spec dir
-- Instruction to: mark in_progress → implement → verify done-when → commit → mark complete
+- Instruction to: mark in_progress → write failing tests (when TDD applies) → implement to make tests pass → refactor → verify done-when → commit → mark complete
+- TDD guidance: use TDD (Red-Green-Refactor) for testable code; skip TDD for config, migrations, docs, static assets, or pure wiring with no logic
 - Commit message format: `feat({FEATURE_SLUG}): <task title> [{task-id}]`
 - Any user-provided additional instructions from `$ARGUMENTS`
 
