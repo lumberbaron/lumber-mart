@@ -29,6 +29,13 @@
       "source": "./plugins/runbooks",
       "category": "workflow",
       "keywords": ["runbooks", "operations", "deployment", "ops", "documentation", "procedures"]
+    },
+    {
+      "name": "critique",
+      "description": "Review skills for code, tests, and documentation. Finds design, coverage, and doc-structure issues that linters miss.",
+      "source": "./plugins/critique",
+      "category": "workflow",
+      "keywords": ["code-review", "test-review", "docs-review", "quality", "review"]
     }
   ]
 }

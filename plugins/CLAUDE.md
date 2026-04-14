@@ -6,3 +6,4 @@ Plugin source directories for the lumber-mart marketplace.
 | `specbeads/` | Spec-driven workflow plugin | Working on spec-kit/beads integration or review commands |
 | `skill-creator/` | Skill creation plugin | Creating or improving Claude Code skills |
 | `runbooks/` | Operational runbook plugin | Creating or maintaining operational runbooks |
+| `critique/` | Code/test/docs review plugin | Reviewing code, tests, or documentation for quality issues |
