@@ -70,7 +70,7 @@ Instruct each subagent to return findings in this exact delimited format (one bl
 priority: P<1|2|3>
 location: <file:line>
 title: <short title>
-category: <Completeness|Usefulness|Output Validation|Isolation|Readability|Integration Test Specifics>
+category: <Completeness|Usefulness|Coverage Gaps|Output Validation|Isolation|Readability|Integration Test Specifics>
 pattern: <short label for the underlying anti-pattern, e.g. "module-scope mutable mocks" or "tautological assertions" — use the SAME label across findings that share the same root cause>
 explanation: <what is wrong or missing and why it matters>
 fix: <concrete prescription>
@@ -130,9 +130,15 @@ Before creating a bead, check if one already exists:
 - Happy path and failure scenarios both present
 
 ### Usefulness
-- Tests catch real bugs, not just chase coverage
-- Tests would fail if code broke
 - Tests validate behavior, not implementation details
+- Tests would fail if the code broke
+- High coverage alone is not proof of quality — a tautological test covers lines without catching regressions
+
+### Coverage Gaps
+- Production code paths in the review scope should not ship with zero test coverage
+- Use the asymmetry: **zero coverage is a strong signal of a real gap; high coverage is a weak signal of quality.** Gap findings carry a built-in falsifiability claim — "no test exercises this code, so a regression here would ship silently."
+- Distinguish genuine gaps from indirect coverage. A function is not a gap if it is exercised transitively by a higher-level test (handler test that flows through a service). Prefer file- and module-level gaps ("this source file has no test that imports or exercises it") over symbol-level grep, which is too noisy in layered code.
+- When a language-standard coverage tool has already been run and a report is available, trust it over static heuristics — it correctly recognizes indirect coverage.
 
 ### Output Validation
 - Assertions check actual results
@@ -160,8 +166,8 @@ Before creating a bead, check if one already exists:
 ## Severity
 
 - **P1**: Tests that **literally cannot fail** — tautological assertions (asserting against a freshly-created mock, asserting truthiness on a value that is always truthy), tests that mask real production bugs (e.g., simulating events differently than the browser does, hiding double-fires). **Shared mutable state is P1 only when it causes actual test interference** (tests fail or produce different results depending on run order). If the shared state is merely a code smell but tests still pass reliably in any order, that is P2.
-- **P2**: Shared mutable state that hasn't caused interference yet but is fragile, missing assertions on return values, unclear test names, no isolation
-- **P3**: Missing edge cases or assertions where you can state a **concrete falsifiability claim** — i.e., "if \<specific code change\> were made, this test would incorrectly pass." Do **not** raise P3 for suggestions that only make a test more thorough without identifying a realistic false-pass scenario.
+- **P2**: Shared mutable state that hasn't caused interference yet but is fragile, missing assertions on return values, unclear test names, no isolation. **Coverage gaps on public/exported production code** in the review scope (a whole file or exported function with no test coverage) are P2 — the falsifiability claim is automatic.
+- **P3**: Missing edge cases or assertions where you can state a **concrete falsifiability claim** — i.e., "if \<specific code change\> were made, this test would incorrectly pass." Do **not** raise P3 for suggestions that only make a test more thorough without identifying a realistic false-pass scenario. Coverage gaps on clearly internal/private helpers are P3.
 
 ## Output
 
