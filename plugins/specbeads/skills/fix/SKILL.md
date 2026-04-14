@@ -1,6 +1,6 @@
 ---
 name: fix
-description: Implement standalone bug and task beads that are not part of a spec-kit phase epic — for example, beads created by review-code, review-tests, or review-spec with --create-beads. Executes one bead at a time, committing after each. For feature phase implementation, use /implement instead.
+description: Implement standalone bug and task beads that are not part of a spec-kit phase epic — for example, beads filed by /raise-beads from critique review findings, or by /review-spec with --create-beads. Executes one bead at a time, committing after each. For feature phase implementation, use /implement instead.
 ---
 
 ## User Input

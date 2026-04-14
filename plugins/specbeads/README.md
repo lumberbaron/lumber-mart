@@ -8,7 +8,11 @@ This plugin bridges two tools:
 - **spec-kit**: Manages feature specifications, plans, and design artifacts
 - **beads**: Tracks work items (epics, tasks, bugs) with dependencies
 
-The plugin converts spec-kit task lists into beads for implementation tracking, plus provides review skills that create beads for issues found.
+The plugin converts spec-kit task lists into beads for implementation tracking, validates implementation against spec-kit artifacts, and files review findings as beads for follow-up work.
+
+### Companion plugin
+
+Code, test, and documentation review skills now live in the **critique** plugin. Install critique alongside specbeads and pipe its findings into `/raise-beads` to turn them into trackable beads.
 
 ## Prerequisites
 
@@ -28,10 +32,8 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 | `/beadify` | Convert tasks.md into beads (epics for phases, tasks as children) | Yes |
 | `/implement` | Implement a spec-kit feature phase, one task at a time with per-task commits | Yes |
 | `/fix` | Implement standalone bug/task beads (e.g. from review findings), one at a time | Yes |
+| `/raise-beads` | File review findings from conversation context as beads, with deduplication | Yes |
 | `/review-spec` | Validate implementation against spec-kit artifacts (spec.md, plan.md, constitution.md) | Yes |
-| `/review-code` | Review code for quality issues, create bug beads for findings | Yes |
-| `/review-docs` | Review documentation for completeness and accuracy | Yes |
-| `/review-tests` | Review tests for coverage and quality issues | Yes |
 
 ### Workflow
 
@@ -40,8 +42,8 @@ Copy this plugin to your Claude Code plugins directory or reference it in your p
 3. **Generate tasks**: Run `/speckit.tasks` to decompose specs into tasks.md
 4. **Convert to beads**: Run `/beadify` to create phase epics and task beads from tasks.md
 5. **Implement**: Run `/implement` to work through phase tasks, or `/implement --all` to continue through all phases
-6. **Review quality**: Run review skills to find issues; use `--create-beads` to file findings as beads
-7. **Fix findings**: Run `/fix` to work through standalone beads created by review skills
+6. **Review quality**: Run the critique plugin's review skills (`/review-code`, `/review-tests`, `/review-docs`), then `/raise-beads` to file findings as beads
+7. **Fix findings**: Run `/fix` to work through standalone beads created by `/raise-beads`
 
 ### Natural Language Triggers
 
@@ -50,10 +52,8 @@ Model-invocable skills can be triggered by natural language:
 - **beadify**: "generate beads for this feature", "convert this feature into beads", "create tasks from the spec", "decompose this into work items"
 - **implement**: "implement the next phase", "implement phase 2", "implement 002-realtime-gateway --all"
 - **fix**: "fix the review beads", "work through the code review findings", "fix sam-b3i"
+- **raise-beads**: "file these findings as beads", "raise beads for the review", "turn the findings into beads"
 - **review-spec**: "check if code matches the spec", "validate implementation", "review spec conformance"
-- **review-code**: "review the code in api/", "check this code for bugs", "audit this module"
-- **review-docs**: "review the docs for this project", "check the documentation", "validate CLAUDE.md files"
-- **review-tests**: "review the tests", "check test quality", "audit test coverage"
 
 ### Usage Examples
 
@@ -66,13 +66,11 @@ Model-invocable skills can be triggered by natural language:
 /fix
 /fix sam-b3i
 /fix auth
-/review-code src/auth/
-/review-docs --create-beads
-/review-tests tests/unit/
-/review-spec 001-user-auth --create-beads
+/raise-beads
+/raise-beads --dry-run
+/raise-beads only P1 and P2
+/review-spec 001-user-auth
 ```
-
-All review skills support `--create-beads` to create beads for findings (default is report-only).
 
 ## Skill Options
 
@@ -97,15 +95,17 @@ All review skills support `--create-beads` to create beads for findings (default
 - `--dry-run` - Show the matched bead list without making changes
 - `<additional instructions>` - Guidance applied throughout
 
+### raise-beads
+
+- `--dry-run` - Show the bead list that would be created without running `bd create`
+- `<additional instructions>` - Filtering or scope guidance (e.g., "only P1 and P2", "skip the naming findings")
+
+Reads review findings from the most recent review output in conversation context. Works with output from the critique plugin (`/review-code`, `/review-tests`, `/review-docs`) or any hand-written findings list that uses P1/P2/P3/P4 priority tags, file locations, and fix prescriptions.
+
 ### review-spec
 
 - `[path]` - Path to focus the review (default: entire repo)
 - `[spec-folder]` - Specific spec folder (e.g., `001-user-auth`)
-- `--create-beads` - Create beads for findings (default: report only)
-
-### review-code / review-docs / review-tests
-
-- `[path]` - Path to review (required for review-code and review-tests)
 - `--create-beads` - Create beads for findings (default: report only)
 
 ## Version Compatibility

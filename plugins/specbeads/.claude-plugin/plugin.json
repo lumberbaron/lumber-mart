@@ -1,7 +1,7 @@
 {
   "name": "specbeads",
-  "description": "Skills to make the use of spec-kit and beads streamlined.",
-  "version": "4.25.0",
+  "description": "Skills for spec-kit and beads workflows: init, beadify, implement, fix, raise-beads, review-spec.",
+  "version": "5.0.0",
   "author": {
     "name": "lumberbarons"
   }

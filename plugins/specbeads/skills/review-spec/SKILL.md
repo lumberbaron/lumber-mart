@@ -200,5 +200,5 @@ Omit the "To create beads..." footer when beads have been created.
 - **Code-level validation**: Evaluates actual code against specs, not just file existence or build output
 - **Gated sections**: Each validation section is gated on its required document being present
 - **Non-destructive**: Creates bug beads for findings, never modifies source code or spec artifacts
-- **Focused scope**: Validates spec conformance only — use `review-code`, `review-tests`, `review-docs` for generic quality
+- **Focused scope**: Validates spec conformance only — use the critique plugin's `review-code`, `review-tests`, `review-docs` skills for generic quality
 - **Stable numbering**: When recommending removal of a numbered item (FR-xxx, USx-x, principles), never delete it. Mark it as "Removed" in place to preserve stable identifiers and avoid breaking cross-references
