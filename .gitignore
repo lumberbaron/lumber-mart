@@ -20,3 +20,6 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+
+# Skill-creator workspaces (fixtures + iteration runs, not shipped)
+plugins/*/skills/*-workspace/

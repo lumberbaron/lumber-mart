@@ -1,14 +1,15 @@
 # critique
 
-A Claude Code plugin providing review skills for code, tests, and documentation. Produces structured findings reports that surface design, coverage, and doc-structure issues that linters and static analysis miss.
+A Claude Code plugin providing review skills for code, tests, documentation, and observability. Produces structured findings reports that surface design, coverage, doc-structure, and logging/error-message issues that linters and static analysis miss.
 
 ## Overview
 
-Three focused review skills, each operating on a path you specify:
+Four focused review skills, each operating on a path you specify:
 
 - **review-code** — design issues (single responsibility, abstraction levels, testability, meaningful naming, API design, error handling strategy)
 - **review-tests** — test completeness, usefulness, coverage gaps, output validation, isolation, readability
 - **review-docs** — README and CLAUDE.md quality, progressive disclosure, enumeration completeness, index drift, `.claude/rules/` validation
+- **review-o11y** — observability: logging consistency, log level appropriateness, log value, missing logs at I/O boundaries, and error-message quality and consistency
 
 Each skill produces a structured findings report with P1/P2/P3 (and P4 for docs) severities, specific file:line locations, explanations, and concrete fixes.
 
@@ -23,12 +24,14 @@ Add this plugin to your Claude Code plugins directory or reference it in your pr
 | `/review-code` | Review code for design issues | Yes |
 | `/review-tests` | Review tests for quality and coverage gaps | Yes |
 | `/review-docs` | Review README and CLAUDE.md files | Yes |
+| `/review-o11y` | Review logging, log levels, and error messages | Yes |
 
 ### Natural Language Triggers
 
 - **review-code**: "review the code in api/", "check this code for design issues", "audit this module"
 - **review-tests**: "review the tests", "check test quality", "audit test coverage"
 - **review-docs**: "review the docs for this project", "check the documentation", "validate CLAUDE.md files"
+- **review-o11y**: "review the logging", "are our logs any good", "check observability", "audit error messages", "do we log the right things"
 
 ### Usage Examples
 
@@ -37,6 +40,7 @@ Add this plugin to your Claude Code plugins directory or reference it in your pr
 /review-tests tests/unit/
 /review-docs
 /review-docs backend/
+/review-o11y internal/payments/
 ```
 
 ## Output
