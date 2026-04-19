@@ -1,0 +1,145 @@
+---
+name: create-adr
+description: Creates an Architectural Decision Record (ADR) in MADR format, researching the codebase and prior ADRs to fill in real context, alternatives, and consequences. Use when the user asks to record, log, write, capture, or document an architectural decision, design choice, technology selection, trade-off, or ADR — including phrases like "make an ADR", "write this up as a decision", or "capture why we picked X". Also invoke proactively when the conversation is clearly settling a non-trivial architectural question (framework selection, data model choice, protocol trade-off, sequencing of a migration) and no ADR has been drafted yet — in that case, offer to record it before the thread moves on.
+---
+
+# Create ADR
+
+## User Input
+
+```text
+$ARGUMENTS
+```
+
+The input describes the decision being recorded (e.g., "use Postgres for the event store", "adopt trunk-based development", "replace custom retry wrapper with Temporal").
+
+If `$ARGUMENTS` is empty, ask the user what decision they want to record — specifically, what was chosen and what alternatives were considered. Do not proceed without at least a decision statement.
+
+## Orientation
+
+ADRs sit **above** specs in the documentation stack. A spec describes *what* to build; the ADR it cites describes *which constraints shaped it*. When you draft an ADR, think of yourself as writing policy that will bind future specs and agents — not just documenting a past conversation.
+
+The primary reader of an ADR in this project is another AI agent picking up the codebase weeks or months from now. That agent will decide whether a proposed change respects or violates the decision, and whether a driver has shifted enough that the ADR should be revisited. Write for that reader: state the drivers precisely enough that an agent can evaluate "does this still hold?", name the rejected options so the agent doesn't re-propose them, and make the `governs:` links explicit so the agent can navigate from any spec back to the policy shaping it.
+
+Use MADR format with rich frontmatter. The `governs:` field is the bridge: populate it with paths to the spec files, plan/tasks artifacts, or feature directories this ADR constrains, so downstream tooling can walk the ADR↔spec graph.
+
+## Workflow
+
+### Step 1: Determine the ADR directory
+
+Check the target project for an existing ADR directory, in this order:
+
+1. If `docs/adr/` exists, use it
+2. If `docs/decisions/` exists, use it
+3. If `docs/adrs/` exists, use it
+4. If none exist, ask the user where ADRs should live, defaulting to `docs/adr/`
+
+### Step 2: Read existing ADRs
+
+If the directory already contains ADRs, read them before drafting. You need to know:
+
+- **Already-documented decisions** — if an existing ADR already covers the same choice at the same scope, stop and tell the user which ADR it is. Do not create a duplicate. If the user's intent is actually to *change* the prior decision, that's a supersede flow (see below), not a new ADR.
+- **Conflict or supersede candidates** — any prior ADR that contradicts or is narrower than the new one. If the new decision replaces an earlier one, you will record that in both the new ADR's `supersedes:` field and the old ADR's `superseded-by:` field + status change to `superseded`.
+- **Related decisions** — prior ADRs that the new one depends on or complements. Capture these in `related:`.
+- **House style** — deciders convention, tag vocabulary, any project-specific sections.
+
+### Step 3: Generate the slug and title
+
+Derive a kebab-case slug from the decision statement. The slug should name the *choice*, not the problem.
+
+Examples:
+- "use Postgres for the event store instead of DynamoDB" → slug `use-postgres-event-store`, title `Use Postgres for the event store`
+- "adopt trunk-based development with short-lived feature flags" → slug `adopt-trunk-based-dev`, title `Adopt trunk-based development`
+- "replace the custom retry wrapper with Temporal workflows" → slug `replace-retry-wrapper-with-temporal`, title `Replace retry wrapper with Temporal workflows`
+
+Prefer verb-first, imperative. Keep the slug concise; the title can be slightly more descriptive but should still fit in a commit-message line.
+
+### Step 4: Scaffold the ADR
+
+Run the init script to create the file from the template. The script auto-numbers the ADR by scanning the target directory for the highest existing `NNNN-*.md` and incrementing.
+
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/skills/create-adr/scripts/init-adr.sh <slug> <adr-dir> "<title>"
+```
+
+This outputs JSON with `ADR_FILE`, `ADR_DIR`, `ADR_ID`, and `ADR_NUMBER`. Use `ADR_FILE` for all subsequent edits.
+
+### Step 5: Research the codebase
+
+Before filling in the template, investigate the project to ground the ADR in reality:
+
+- **Code paths the decision affects** — modules, services, or directories that will change
+- **Existing specs and plans** — `docs/specs/`, `specs/`, spec-kit artifacts, `plan.md`, `tasks.md`; note paths to cite in `governs:`
+- **Configuration and infra** — Dockerfiles, Terraform, CI pipelines, package manifests
+- **Prior discussion artifacts** — commit messages, PR descriptions, existing docs on the topic
+- **Operational realities** — observability, runbooks, deployment model that constrain viable options
+
+> [!IMPORTANT]
+> Decision Drivers must be **specific to this project**, not generic engineering platitudes. "Must be fast" is not a driver. "p99 read latency budget is 30 ms under 10k QPS because of the checkout path in `services/checkout/`" is a driver. If you cannot find specifics from the codebase or user, ask — do not invent numbers.
+
+### Step 6: Fill in the ADR
+
+Edit the scaffolded file, replacing every placeholder with project-specific content:
+
+- **Frontmatter**:
+  - `status`: start as `proposed` unless the user explicitly says the decision is already made
+  - `deciders`: names/handles of the people deciding, from the user's input — do not guess
+  - `supersedes` / `superseded-by` / `related`: ADR IDs you identified in Step 2
+  - `governs`: paths to spec files, plan/tasks artifacts, or feature directories this ADR constrains (relative to repo root)
+  - `tags`: short nouns (e.g., `storage`, `observability`, `build`) — reuse vocabulary from prior ADRs
+- **Context and Problem Statement**: the forces at play, grounded in the codebase research
+- **Decision Drivers**: specific, measurable where possible
+- **Considered Options**: include the chosen option plus at least one real alternative; "do nothing" is a valid option if relevant
+- **Decision Outcome**: which option won and *which drivers tipped the balance* — a reader should be able to tell whether changing a driver would invalidate this decision
+- **Consequences**: honest positives, negatives, and risks; if there are no negatives, you haven't thought hard enough
+- **Pros and Cons of the Options**: per-option analysis, including the rejected ones
+- **Implementation Notes**: how the decision cascades into specs/code; reiterate the `governs:` links in prose
+- **References**: links to discussions, PRs, issues, prior ADRs, spec files
+
+> [!NOTE]
+> If `$ARGUMENTS` or the conversation does not provide enough material for Decision Drivers or Consequences, stop and ask the user. An ADR with hand-wavy drivers and made-up consequences is worse than no ADR.
+
+### Step 7: Update supersede links (if applicable)
+
+If the new ADR supersedes an earlier one (captured in its `supersedes:` frontmatter), edit the superseded ADR:
+
+1. Set its `status:` to `superseded`
+2. Add the new ADR's ID to its `superseded-by:` list
+3. Do **not** rewrite the old ADR's content — the historical record matters
+
+### Step 8: Update the ADR index (if one exists)
+
+Check if the ADR directory has an index file (e.g., `README.md`, `INDEX.md`). If so, add an entry for the new ADR following the existing format. If the directory has no index and already contains 3+ ADRs, offer to create a `README.md` index listing all ADRs with `id | title | status | date`.
+
+### Step 9: Register the ADR in the project CLAUDE.md
+
+> [!IMPORTANT]
+> This step is critical. ADRs only bind future work if agents and developers know they exist. The project's root `CLAUDE.md` is the single source of truth that Claude Code always reads — if an ADR isn't listed there, future agents will re-litigate the decision or quietly drift from it.
+
+Read the project's root `CLAUDE.md`. Look for an existing `## Architectural Decisions` section.
+
+**If the section already exists**, add a new row to the table for the ADR you just created, following the existing format.
+
+**If the section does not exist**, append it to the end of `CLAUDE.md` using this format (substitute the actual ADR directory):
+
+```markdown
+## Architectural Decisions
+
+ADRs live in `<adr-dir>/`. Read the relevant ADRs before proposing architectural changes — they encode constraints and rejected alternatives. When writing or modifying specs, check the `governs:` frontmatter of each ADR to see which specs it binds.
+
+| ADR | When this applies |
+|---|---|
+| `<adr-dir>/<NNNN-slug>.md` | <1-line description of the area/situation this decision governs> |
+```
+
+The "When this applies" column should describe the *situation* that should make a future agent read the ADR — not just restate the title. Good example: "Any change to event persistence, replay semantics, or write-path latency in `services/ledger/`". Bad example: "When using the event store".
+
+### Step 10: Present for review
+
+Show the user the completed ADR and ask whether the drivers, rejected alternatives, and consequences match their intent. Explicitly flag:
+
+- Any section where you had to make assumptions due to limited information
+- The `governs:` paths you selected (these are load-bearing for the ADR↔spec graph)
+- Any supersede links you applied to prior ADRs
+
+Only change `status:` from `proposed` to `accepted` after the user confirms — do not do it preemptively.

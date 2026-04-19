@@ -1,0 +1,8 @@
+{
+  "name": "decisions",
+  "description": "Skills for creating and maintaining Architectural Decision Records (ADRs) as the policy layer above specs. Produces MADR-format ADRs with AI-native metadata, relationship tracking, and CLAUDE.md registration so future agents honor prior decisions.",
+  "version": "1.0.0",
+  "author": {
+    "name": "lumberbarons"
+  }
+}

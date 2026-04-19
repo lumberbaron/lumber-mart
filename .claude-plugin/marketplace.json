@@ -36,6 +36,13 @@
       "source": "./plugins/critique",
       "category": "workflow",
       "keywords": ["code-review", "test-review", "docs-review", "observability-review", "logging", "quality", "review"]
+    },
+    {
+      "name": "decisions",
+      "description": "Skills for creating and maintaining Architectural Decision Records (ADRs) as the policy layer above specs. MADR format with AI-native metadata, relationship tracking, and CLAUDE.md registration.",
+      "source": "./plugins/decisions",
+      "category": "workflow",
+      "keywords": ["adr", "architecture", "decisions", "madr", "documentation", "policy", "specs"]
     }
   ]
 }
