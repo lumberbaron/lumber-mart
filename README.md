@@ -4,14 +4,20 @@ A plugin marketplace for Claude Code that lets you discover and install plugins 
 
 Learn more about Claude Code marketplaces in the [official documentation](https://code.claude.com/docs/en/plugin-marketplaces).
 
+## Prerequisites
+
+- [Claude Code](https://docs.claude.com/en/docs/claude-code) with plugin marketplace support
+- `git` (only required to add a local marketplace from a clone)
+
 ## Available Plugins
 
 | Plugin | Category | Description |
 |--------|----------|-------------|
 | [circuits](plugins/circuits/) | Hardware | Skills and agents for microcontroller and hardware projects -- timing diagrams, PCB design, and datasheet extraction |
-| [specbeads](plugins/specbeads/) | Workflow | Specification-driven development with spec-kit and beads -- task tracking, sync, and automated code/docs/test/spec reviews |
-| [skill-creator](plugins/skill-creator/) | Workflow | Guidance and tooling for creating high-quality Claude Code skills with validation and best practices |
+| [specbeads](plugins/specbeads/) | Workflow | Specification-driven development with spec-kit and beads -- task tracking and spec conformance |
 | [runbooks](plugins/runbooks/) | Workflow | Operational runbook creation with consistent structure and built-in maintenance feedback loops |
+| [critique](plugins/critique/) | Workflow | Review skills for code, tests, documentation, and observability -- design, coverage, doc-structure, and logging issues that linters miss |
+| [decisions](plugins/decisions/) | Workflow | Architectural Decision Record (ADR) authoring in MADR format with relationship tracking and CLAUDE.md registration |
 
 ### [circuits](plugins/circuits/)
 
@@ -26,27 +32,16 @@ Skills and agents to help with microcontroller and other hardware projects.
 
 ### [specbeads](plugins/specbeads/)
 
-Integrates [spec-kit](https://github.com/spec-kit/specify) with [beads](https://github.com/beads-project/beads) for streamlined specification-driven development.
+Integrates [spec-kit](https://github.com/spec-kit/specify) with [beads](https://github.com/beads-project/beads) for streamlined specification-driven development. Pairs with the [critique](plugins/critique/) plugin -- pipe its review output through `/raise-beads` to file findings as trackable beads.
 
 | Component | Type | Description |
 |-----------|------|-------------|
 | `specbeads:init` | Command | Initialize a repository with spec-kit and beads |
 | `specbeads:beadify` | Command | Convert tasks.md into beads (epics for phases, tasks as children) |
-| `specbeads:sync` | Command | Bidirectional sync between beads and tasks.md |
-| `specbeads:status` | Command | Project progress dashboard with phase status and sync health |
-| `specbeads:review-code` | Command | Review code for quality issues, create bug beads for findings |
-| `specbeads:review-docs` | Command | Review documentation for completeness and accuracy |
-| `specbeads:review-tests` | Command | Review tests for coverage and quality issues |
+| `specbeads:implement` | Command | Implement a spec-kit feature phase, one task at a time with per-task commits |
+| `specbeads:fix` | Command | Implement standalone bug/task beads (e.g. from review findings) |
+| `specbeads:raise-beads` | Command | File review findings from conversation context as beads, with deduplication |
 | `specbeads:review-spec` | Command | Validate implementation against spec-kit artifacts |
-
-### [skill-creator](plugins/skill-creator/)
-
-Guidance and tooling for creating high-quality Claude Code skills with validation and best practices.
-
-| Component | Type | Description |
-|-----------|------|-------------|
-| `create-skill` | Skill | Scaffold and write a new Claude Code skill with proper structure and metadata |
-| `review-skill` | Skill | Review an existing skill for conformance to best practices |
 
 ### [runbooks](plugins/runbooks/)
 
@@ -55,6 +50,25 @@ Operational runbook creation with consistent structure and built-in maintenance 
 | Component | Type | Description |
 |-----------|------|-------------|
 | `create-runbook` | Skill | Create a new operational runbook from a standard template |
+
+### [critique](plugins/critique/)
+
+Review skills that surface design, coverage, doc-structure, and logging issues that linters and static analysis miss. Each skill produces a structured findings report with P1/P2/P3 (and P4 for docs) severities, file:line locations, and concrete fixes.
+
+| Component | Type | Description |
+|-----------|------|-------------|
+| `review-code` | Skill | Review code for design issues -- single responsibility, abstraction levels, testability, naming |
+| `review-tests` | Skill | Review tests for completeness, coverage gaps, output validation, isolation, readability |
+| `review-docs` | Skill | Review README and CLAUDE.md files for progressive disclosure, enumeration completeness, index drift |
+| `review-o11y` | Skill | Review observability -- log levels, log value, missing logs at I/O boundaries, error-message quality |
+
+### [decisions](plugins/decisions/)
+
+Architectural Decision Record (ADR) creation and maintenance tooling. Produces MADR-format ADRs with rich frontmatter (`supersedes`, `superseded-by`, `related`, `governs`) so decisions form a navigable graph linked to the specs they constrain.
+
+| Component | Type | Description |
+|-----------|------|-------------|
+| `create-adr` | Skill | Create a new ADR from a MADR template, research context from the codebase, and register it in the project's CLAUDE.md |
 
 ## Usage
 
