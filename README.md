@@ -25,10 +25,10 @@ Skills and agents to help with microcontroller and other hardware projects.
 
 | Component | Type | Description |
 |-----------|------|-------------|
-| `wavejson` | Skill | Generate WaveJSON timing diagrams and HTML viewers using WaveDrom |
-| `circuit-synth` | Skill | Design PCB circuits in Python with KiCad output and component search |
-| `datasheet` | Skill | Extract structured information from IC/component datasheets into markdown |
-| `datasheet-agent` | Agent | Autonomous agent for datasheet reading and extraction |
+| `circuits:wavejson` | Skill | Generate WaveJSON timing diagrams and HTML viewers using WaveDrom |
+| `circuits:circuit-synth` | Skill | Design PCB circuits in Python with KiCad output and component search |
+| `circuits:datasheet` | Skill | Extract structured information from IC/component datasheets into markdown |
+| `circuits:datasheet-agent` | Agent | Autonomous agent for datasheet reading and extraction |
 
 ### [specbeads](plugins/specbeads/)
 
@@ -49,7 +49,7 @@ Operational runbook creation with consistent structure and built-in maintenance 
 
 | Component | Type | Description |
 |-----------|------|-------------|
-| `create-runbook` | Skill | Create a new operational runbook from a standard template |
+| `runbooks:create-runbook` | Skill | Create a new operational runbook from a standard template |
 
 ### [critique](plugins/critique/)
 
@@ -57,10 +57,10 @@ Review skills that surface design, coverage, doc-structure, and logging issues t
 
 | Component | Type | Description |
 |-----------|------|-------------|
-| `review-code` | Skill | Review code for design issues -- single responsibility, abstraction levels, testability, naming |
-| `review-tests` | Skill | Review tests for completeness, coverage gaps, output validation, isolation, readability |
-| `review-docs` | Skill | Review README and CLAUDE.md files for progressive disclosure, enumeration completeness, index drift |
-| `review-o11y` | Skill | Review observability -- log levels, log value, missing logs at I/O boundaries, error-message quality |
+| `critique:review-code` | Skill | Review code for design issues -- single responsibility, abstraction levels, testability, naming |
+| `critique:review-tests` | Skill | Review tests for completeness, coverage gaps, output validation, isolation, readability |
+| `critique:review-docs` | Skill | Review README and CLAUDE.md files for progressive disclosure, enumeration completeness, index drift |
+| `critique:review-o11y` | Skill | Review observability -- log levels, log value, missing logs at I/O boundaries, error-message quality |
 
 ### [decisions](plugins/decisions/)
 
@@ -68,7 +68,7 @@ Architectural Decision Record (ADR) creation and maintenance tooling. Produces M
 
 | Component | Type | Description |
 |-----------|------|-------------|
-| `create-adr` | Skill | Create a new ADR from a MADR template, research context from the codebase, and register it in the project's CLAUDE.md |
+| `decisions:create-adr` | Skill | Create a new ADR from a MADR template, research context from the codebase, and register it in the project's CLAUDE.md |
 
 ## Usage
 

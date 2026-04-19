@@ -15,16 +15,16 @@ Each skill produces a structured findings report with P1/P2/P3 (and P4 for docs)
 
 ## Installation
 
-Add this plugin to your Claude Code plugins directory or reference it in your project's `.claude/settings.json`.
+Install via the lumber-mart marketplace — see the [root README](../../README.md#usage) for the `/plugin marketplace add` and `/plugin install` commands.
 
 ## Skills
 
 | Skill | Description | Model-Invocable |
 |-------|-------------|-----------------|
-| `/review-code` | Review code for design issues | Yes |
-| `/review-tests` | Review tests for quality and coverage gaps | Yes |
-| `/review-docs` | Review README and CLAUDE.md files | Yes |
-| `/review-o11y` | Review logging, log levels, and error messages | Yes |
+| `/critique:review-code` | Review code for design issues | Yes |
+| `/critique:review-tests` | Review tests for quality and coverage gaps | Yes |
+| `/critique:review-docs` | Review README and CLAUDE.md files | Yes |
+| `/critique:review-o11y` | Review logging, log levels, and error messages | Yes |
 
 ### Natural Language Triggers
 
@@ -36,11 +36,11 @@ Add this plugin to your Claude Code plugins directory or reference it in your pr
 ### Usage Examples
 
 ```
-/review-code src/auth/
-/review-tests tests/unit/
-/review-docs
-/review-docs backend/
-/review-o11y internal/payments/
+/critique:review-code src/auth/
+/critique:review-tests tests/unit/
+/critique:review-docs
+/critique:review-docs backend/
+/critique:review-o11y internal/payments/
 ```
 
 ## Output
@@ -57,8 +57,8 @@ No tables, no passing rows — only actionable findings.
 Critique is intentionally bead-agnostic. To file findings as beads, install the companion plugin **specbeads** and run `/raise-beads` after a review. It reads the review output from conversation context, deduplicates against existing open/closed beads, and creates bug/task beads with structured descriptions.
 
 ```
-/review-code src/auth/
-/raise-beads
+/critique:review-code src/auth/
+/specbeads:raise-beads
 ```
 
 In environments that don't use beads, the review report is the deliverable — read it directly, or ask Claude to act on specific findings.
