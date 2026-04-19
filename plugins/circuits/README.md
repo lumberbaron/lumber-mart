@@ -9,6 +9,14 @@ This plugin provides tools for hardware development workflows:
 - **PCB circuit design** using Python and KiCad with AI assistance
 - **Datasheet extraction** from component PDFs and URLs into structured markdown
 
+## Prerequisites
+
+| Skill | Requirements |
+|-------|--------------|
+| `wavejson` | None — generated HTML viewer renders in any modern browser |
+| `circuit-synth` | Python 3.12+, the `circuit-synth` package; `reportlab` optional (PDF schematics); KiCad to open generated projects |
+| `datasheet` | Local PDF file path, or network access for URL-based datasheets |
+
 ## Skills
 
 | Skill | Description |
@@ -37,8 +45,6 @@ The skill produces WaveJSON and optionally an HTML viewer file.
 ### circuit-synth
 
 Create and design PCB circuits using Python and KiCad with AI assistance. Generate circuits from natural language descriptions, existing documentation, or templates.
-
-**Requirements:** Python 3.12+, `circuit-synth` package, optionally `reportlab`
 
 **Features:**
 - Define circuits in Python instead of GUI clicking
