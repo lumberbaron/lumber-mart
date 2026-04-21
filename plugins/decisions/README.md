@@ -1,6 +1,6 @@
 # decisions
 
-Architectural Decision Record (ADR) creation and maintenance tooling for Claude Code.
+Architectural Decision Record (ADR) creation, maintenance, and enforcement tooling for Claude Code.
 
 ## Overview
 
@@ -13,6 +13,7 @@ The output is MADR-style (Markdown Architecture Decision Records) with rich fron
 | Skill | Description | Model-Invocable |
 |-------|-------------|-----------------|
 | `/decisions:create-adr` | Create a new ADR from a standard MADR template, researching context from the codebase and registering it in the project's CLAUDE.md | Yes |
+| `/decisions:review-policy` | Review a code change (working diff, PR, or path) against the accepted ADRs and report violations, invariant erosions, drift toward rejected options, and driver-shift candidates for ADR revisit | Yes |
 
 ## Usage
 
@@ -20,9 +21,14 @@ The output is MADR-style (Markdown Architecture Decision Records) with rich fron
 /decisions:create-adr use Postgres for the event store instead of DynamoDB
 /decisions:create-adr adopt trunk-based development with short-lived feature flags
 /decisions:create-adr replace the custom retry wrapper with Temporal workflows
+
+/decisions:review-policy                   # review the current working diff against all accepted ADRs
+/decisions:review-policy main...HEAD       # review a specific ref range
+/decisions:review-policy PR#42             # review a pull request
+/decisions:review-policy --adr ADR-0007    # review the diff against a single ADR
 ```
 
-If you drop the argument, the skill will ask what decision you want to record.
+If `create-adr` is called without an argument, it asks what decision to record. If `review-policy` is called without an argument, it defaults to the working diff against the repo's base branch.
 
 ## Template Structure
 
