@@ -64,7 +64,7 @@ Review skills that surface design, coverage, doc-structure, and logging issues t
 
 ### [decisions](plugins/decisions/)
 
-Architectural Decision Record (ADR) creation and maintenance tooling. Produces MADR-format ADRs with rich frontmatter (`supersedes`, `superseded-by`, `related`, `governs`) so decisions form a navigable graph linked to the specs they constrain.
+Architectural Decision Record (ADR) creation and maintenance tooling. Produces MADR-format ADRs as standalone, append-only policy with ADR-to-ADR relationship tracking (`supersedes`, `superseded-by`, `related`). Specs cite the ADRs that constrained them; ADRs do not track their downstream consumers.
 
 | Component | Type | Description |
 |-----------|------|-------------|
